@@ -45,7 +45,7 @@ public class SmsComponent {
         String url = String.format(URL_TEMPLATE,to,templateId,value);
         HttpHeaders headers = new HttpHeaders();
         //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
-        headers.set("Authorization","APPCODE "+smsConfig.getAppCode());
+        headers.set("Authorization","APPCODE "+ smsConfig.getAppCode());
         HttpEntity entity = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 
@@ -61,3 +61,4 @@ public class SmsComponent {
     }
 
 }
+
