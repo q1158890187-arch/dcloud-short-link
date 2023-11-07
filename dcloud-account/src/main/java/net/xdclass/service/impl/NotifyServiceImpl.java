@@ -25,7 +25,7 @@ public class NotifyServiceImpl implements NotifyService {
     private RestTemplate restTemplate;
 
     @Override
-    @Async
+    @Async("threadPoolTaskExecutor")
     public void testSend() {
         // try {
         //     TimeUnit.MILLISECONDS.sleep(200);
