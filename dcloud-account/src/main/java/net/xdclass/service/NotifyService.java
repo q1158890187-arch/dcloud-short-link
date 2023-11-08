@@ -1,5 +1,8 @@
 package net.xdclass.service;
 
+import net.xdclass.enums.SendCodeEnum;
+import net.xdclass.util.JsonData;
+
 /**
  * @description:
  * @author: zhengqinghua
@@ -7,4 +10,11 @@ package net.xdclass.service;
  */
 public interface NotifyService {
 
+    /**
+     * 发送短信验证码
+     * @param sendCodeEnum
+     * @param to
+     * @return
+     */
+    JsonData sendCode(SendCodeEnum sendCodeEnum, String to);
 }
