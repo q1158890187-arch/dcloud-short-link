@@ -3,16 +3,12 @@ package net.xdclass.controller;
 import com.google.code.kaptcha.Producer;
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.service.NotifyService;
-import net.xdclass.util.CommonUtil;
 import net.xdclass.util.JsonData;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -20,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @description:
@@ -32,46 +27,49 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class NotifyController {
 
-    @Autowired
+    @Resource
     private Producer captchaProducer;
 
-    @Autowired
+    @Resource
     private NotifyService notifyService;
+
+    private StringRedisTemplate stringRedisTemplate;
+
+    private RedisTemplate redisTemplate;
 
 
     /**
      * 生成验证码
+     *
      * @param request
      * @param response
      */
-    @GetMapping("/captcha")
-    public void getCaptcha(HttpServletRequest request, HttpServletResponse response){
-
+    @GetMapping("captcha")
+    public void getCaptcha(HttpServletRequest request, HttpServletResponse response) {
         String captchaText = captchaProducer.createText();
-        log.info("验证码内容:{}",captchaText);
-
-        //存储redis,配置过期时间 TODO
+        log.info("验证码内容:{}", captchaText);
+        // 存储redis,配置过期时间 TODO， jedis/lettuce
 
         BufferedImage bufferedImage = captchaProducer.createImage(captchaText);
 
         try {
             ServletOutputStream outputStream = response.getOutputStream();
-            ImageIO.write(bufferedImage,"jpg",outputStream);
+            ImageIO.write(bufferedImage, "jpg", outputStream);
             outputStream.flush();
             outputStream.close();
         } catch (IOException e) {
-            log.error("获取流出错:{}",e.getMessage());
+            log.error("获取流出错:{}", e.getMessage());
         }
 
     }
 
-
     /**
      * 测试发送验证码接口-主要是用于对比优化前后区别
+     *
      * @return
      */
     @GetMapping("/send")
-    public JsonData send(){
+    public JsonData send() {
 
         return JsonData.buildSuccess();
     }
