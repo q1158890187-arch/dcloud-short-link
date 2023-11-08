@@ -33,25 +33,7 @@ public class NotifyController {
      */
     @GetMapping("/send")
     public JsonData send(){
-        notifyService.testSend();
+
         return JsonData.buildSuccess();
-    }
-
-     @Resource
-     private RestTemplate restTemplate;
-
-    @Async
-    public void testSend() {
-        try {
-            TimeUnit.MILLISECONDS.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        long beginTime = CommonUtil.getCurrentTimestamp();
-        ResponseEntity<String> forEntity = restTemplate.getForEntity("https://www.baidu.com", String.class);
-        String body = forEntity.getBody();
-        long endTime = CommonUtil.getCurrentTimestamp();
-        log.info("耗时={},body={}",endTime-beginTime,body);
-
     }
 }
