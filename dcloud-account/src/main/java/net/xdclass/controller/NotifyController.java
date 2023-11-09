@@ -10,10 +10,8 @@ import net.xdclass.util.CommonUtil;
 import net.xdclass.util.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -29,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @date: 2023/11/7 00:30
  */
 @RestController
-@RequestMapping("/api/account/v1")
+@RequestMapping("/api/notify/v1")
 @Slf4j
 public class NotifyController {
 
@@ -85,7 +83,7 @@ public class NotifyController {
      *
      * @return
      */
-    @GetMapping("/send_code")
+    @PostMapping("/send_code")
     public JsonData sendCode(@RequestBody SendCodeRequest sendCodeRequest, HttpServletRequest request) {
 
         String key = getCaptchaKey(request);

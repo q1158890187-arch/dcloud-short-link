@@ -49,3 +49,11 @@ mybatis-plus:
 sms:
   app-code: a4bda4d5ca0949b590a0b98ba648e1ca
   template-id: M72CB42894
+
+#----------阿里云OSS配置--------------
+aliyun:
+  oss:
+    endpoint: oss-cn-beijing.aliyuncs.com
+    access-key-id: LTAI4G4FYP2tZQCycq1swmzk
+    access-key-secret: fVAyzPfDsoqWNHv2jGSikCcQei1gVi
+    bucketname: xdclass-1024shop-imgzqh
