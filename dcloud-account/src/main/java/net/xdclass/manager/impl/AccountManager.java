@@ -1,9 +1,13 @@
 package net.xdclass.manager.impl;
 
+import net.xdclass.model.AccountDO;
+
 /**
  * @description:
  * @author: zhengqinghua
  * @date: 2023/11/5 23:52
  */
 public interface AccountManager {
+
+    int insert(AccountDO accountDO);
 }

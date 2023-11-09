@@ -17,4 +17,13 @@ public interface NotifyService {
      * @return
      */
     JsonData sendCode(SendCodeEnum sendCodeEnum, String to);
+
+    /**
+     * 校验验证码
+     * @param sendCodeEnum
+     * @param phone
+     * @param code
+     * @return
+     */
+    boolean checkCode(SendCodeEnum sendCodeEnum, String phone, String code);
 }

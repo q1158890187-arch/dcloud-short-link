@@ -10,6 +10,7 @@ import net.xdclass.service.NotifyService;
 import net.xdclass.util.CheckUtil;
 import net.xdclass.util.CommonUtil;
 import net.xdclass.util.JsonData;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -73,5 +74,30 @@ public class NotifyServiceImpl implements NotifyService {
         }
 
         return JsonData.buildSuccess();
+    }
+
+    /**
+     * 验证码校验逻辑
+     * @param sendCodeEnum
+     * @param to
+     * @param code
+     * @return
+     */
+    @Override
+    public boolean checkCode(SendCodeEnum sendCodeEnum, String to, String code) {
+
+        String cacheKey = String.format(RedisKey.CHECK_CODE_KEY,sendCodeEnum.name(),to);
+
+        String cacheValue = redisTemplate.opsForValue().get(cacheKey);
+        if(StringUtils.isNotBlank(cacheValue)){
+
+            String cacheCode = cacheValue.split("_")[0];
+            if(cacheCode.equalsIgnoreCase(code)){
+                //删除验证码
+                redisTemplate.delete(code);
+                return true;
+            }
+        }
+        return false;
     }
 }
