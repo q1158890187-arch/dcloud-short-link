@@ -2,6 +2,8 @@ package net.xdclass.manager.impl;
 
 import net.xdclass.model.AccountDO;
 
+import java.util.List;
+
 /**
  * @description:
  * @author: zhengqinghua
@@ -10,4 +12,6 @@ import net.xdclass.model.AccountDO;
 public interface AccountManager {
 
     int insert(AccountDO accountDO);
+
+    List<AccountDO> findByPhone(String phone);
 }

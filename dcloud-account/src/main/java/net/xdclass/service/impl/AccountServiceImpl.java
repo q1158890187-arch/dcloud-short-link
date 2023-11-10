@@ -1,6 +1,9 @@
 package net.xdclass.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.model.LoginUser;
+import net.xdclass.controller.request.AccountLoginRequest;
 import net.xdclass.controller.request.AccountRegisterRequest;
 import net.xdclass.enums.AuthTypeEnum;
 import net.xdclass.enums.BizCodeEnum;
@@ -17,10 +20,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author zhengqinghua
@@ -50,36 +54,65 @@ public class AccountServiceImpl implements AccountService {
     public JsonData register(AccountRegisterRequest registerRequest) {
         boolean checkCode = false;
         // 判断验证码是否正确
-        if (StringUtils.isNotBlank(registerRequest.getPhone())){
-            checkCode = notifyService.checkCode(SendCodeEnum.USER_REGISTER,registerRequest.getPhone(),registerRequest.getCode());
+        if (StringUtils.isNotBlank(registerRequest.getPhone())) {
+            checkCode = notifyService.checkCode(SendCodeEnum.USER_REGISTER, registerRequest.getPhone(), registerRequest.getCode());
         }
         // 验证码不正确
-        if (!checkCode){
+        if (!checkCode) {
             return JsonData.buildResult(BizCodeEnum.CODE_ERROR);
         }
 
         AccountDO accountDO = new AccountDO();
-        BeanUtils.copyProperties(registerRequest,accountDO);
-        //认证级别
+        BeanUtils.copyProperties(registerRequest, accountDO);
+        // 认证级别
         accountDO.setAuth(AuthTypeEnum.DEFAULT.name());
-        //唯一账号 TODO
+        // 唯一账号 TODO
         accountDO.setAccountNo(CommonUtil.getCurrentTimestamp());
-        //密码加密 秘钥 盐
-        accountDO.setSecret("$1$"+CommonUtil.getStringNumRandom(8));
-        String cryptPwd = Md5Crypt.md5Crypt(registerRequest.getPwd().getBytes(),accountDO.getSecret());
+        // 密码加密 秘钥 盐
+        accountDO.setSecret("$1$" + CommonUtil.getStringNumRandom(8));
+        String cryptPwd = Md5Crypt.md5Crypt(registerRequest.getPwd().getBytes(), accountDO.getSecret());
         accountDO.setPwd(cryptPwd);
 
         int rows = accountManager.insert(accountDO);
-        log.info("rows:{},注册成功:{}",rows,accountDO);
+        log.info("rows:{},注册成功:{}", rows, accountDO);
 
-        //用户注册成功，发放福利 TODO
+        // 用户注册成功，发放福利 TODO
         userRegisterInitTask(accountDO);
 
         return JsonData.buildSuccess();
     }
 
     /**
+     * 1、根据手机号去找
+     * 2、
+     *
+     * @param accountLoginRequest
+     * @return
+     */
+    @Override
+    public JsonData login(AccountLoginRequest accountLoginRequest) {
+        List<AccountDO> accountDOList = accountManager.findByPhone(accountLoginRequest.getPhone());
+        if (CollUtil.isEmpty(accountDOList) && accountDOList.size() == 1) {
+            AccountDO accountDO = accountDOList.get(0);
+            String md5Crypt = Md5Crypt.md5Crypt(accountLoginRequest.getPwd().getBytes(), accountDO.getSecret());
+            if (md5Crypt.equals(accountDO.getPwd())) {
+                LoginUser loginUser = LoginUser.builder().build();
+                BeanUtils.copyProperties(accountDO, loginUser);
+                // 生产TOKEN TODO
+
+                return JsonData.buildSuccess("");
+            } else {
+                return JsonData.buildResult(BizCodeEnum.ACCOUNT_PWD_ERROR);
+            }
+        } else {
+            return JsonData.buildResult(BizCodeEnum.ACCOUNT_UNREGISTER);
+        }
+
+    }
+
+    /**
      * 用户注册成功，发放福利 TODO
+     *
      * @param accountDO
      */
     private void userRegisterInitTask(AccountDO accountDO) {

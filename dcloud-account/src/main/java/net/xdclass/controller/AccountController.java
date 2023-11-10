@@ -1,6 +1,7 @@
 package net.xdclass.controller;
 
 
+import net.xdclass.controller.request.AccountLoginRequest;
 import net.xdclass.controller.request.AccountRegisterRequest;
 import net.xdclass.enums.BizCodeEnum;
 import net.xdclass.service.AccountService;
@@ -44,9 +45,25 @@ public class AccountController {
 
     }
 
+    /**
+     * 用户注册
+     * @param registerRequest
+     * @return
+     */
     @PostMapping("register")
     public JsonData register(@RequestBody AccountRegisterRequest registerRequest){
         JsonData jsonData= accountService.register(registerRequest);
+        return jsonData;
+    }
+
+    /**
+     * 用户登录
+     * @param accountLoginRequest
+     * @return
+     */
+    @PostMapping("/login")
+    public JsonData login(@RequestBody AccountLoginRequest accountLoginRequest){
+        JsonData jsonData = accountService.login(accountLoginRequest);
         return jsonData;
     }
 }
