@@ -13,6 +13,7 @@ import net.xdclass.model.AccountDO;
 import net.xdclass.service.AccountService;
 import net.xdclass.service.NotifyService;
 import net.xdclass.util.CommonUtil;
+import net.xdclass.util.JWTUtil;
 import net.xdclass.util.JsonData;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.StringUtils;
@@ -84,7 +85,7 @@ public class AccountServiceImpl implements AccountService {
 
     /**
      * 1、根据手机号去找
-     * 2、
+     * 2、有的话，则用秘钥+用户传递的明文密码，进行加密，再和数据库的密文进行匹配
      *
      * @param accountLoginRequest
      * @return
@@ -98,9 +99,9 @@ public class AccountServiceImpl implements AccountService {
             if (md5Crypt.equals(accountDO.getPwd())) {
                 LoginUser loginUser = LoginUser.builder().build();
                 BeanUtils.copyProperties(accountDO, loginUser);
-                // 生产TOKEN TODO
-
-                return JsonData.buildSuccess("");
+                // 生成TOKEN
+                String token = JWTUtil.geneJsonWebToken(loginUser);
+                return JsonData.buildSuccess(token);
             } else {
                 return JsonData.buildResult(BizCodeEnum.ACCOUNT_PWD_ERROR);
             }
