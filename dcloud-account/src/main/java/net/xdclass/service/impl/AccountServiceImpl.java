@@ -13,6 +13,7 @@ import net.xdclass.model.AccountDO;
 import net.xdclass.service.AccountService;
 import net.xdclass.service.NotifyService;
 import net.xdclass.util.CommonUtil;
+import net.xdclass.util.IDUtil;
 import net.xdclass.util.JWTUtil;
 import net.xdclass.util.JsonData;
 import org.apache.commons.codec.digest.Md5Crypt;
@@ -67,8 +68,8 @@ public class AccountServiceImpl implements AccountService {
         BeanUtils.copyProperties(registerRequest, accountDO);
         // 认证级别
         accountDO.setAuth(AuthTypeEnum.DEFAULT.name());
-        // 唯一账号 TODO
-        accountDO.setAccountNo(CommonUtil.getCurrentTimestamp());
+        // 唯一账号
+        accountDO.setAccountNo(Long.valueOf(IDUtil.geneSnowFlakeID().toString()));
         // 密码加密 秘钥 盐
         accountDO.setSecret("$1$" + CommonUtil.getStringNumRandom(8));
         String cryptPwd = Md5Crypt.md5Crypt(registerRequest.getPwd().getBytes(), accountDO.getSecret());
