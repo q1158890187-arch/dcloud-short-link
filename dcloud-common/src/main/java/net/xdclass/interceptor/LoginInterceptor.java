@@ -2,7 +2,7 @@ package net.xdclass.interceptor;
 
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
-import net.model.LoginUser;
+import net.xdclass.model.LoginUser;
 import net.xdclass.enums.BizCodeEnum;
 import net.xdclass.util.CommonUtil;
 import net.xdclass.util.JWTUtil;

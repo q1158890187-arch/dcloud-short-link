@@ -1,4 +1,4 @@
-package net.model;
+package net.xdclass.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

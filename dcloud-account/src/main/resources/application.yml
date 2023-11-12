@@ -65,7 +65,14 @@ spring:
             inline:
               algorithm-expression: traffic_$->{ account_no % 2 }
               sharding-column: account_no
-
+          #id生成策略
+          key-generator:
+            column: id
+            props:
+              worker:
+                id: ${workId}
+            #id生成策略
+            type: SNOWFLAKE
   #数据库配置
 #  datasource:
 #    driver-class-name: com.mysql.cj.jdbc.Driver

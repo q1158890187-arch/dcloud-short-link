@@ -2,7 +2,7 @@ package net.xdclass.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import lombok.extern.slf4j.Slf4j;
-import net.model.LoginUser;
+import net.xdclass.model.LoginUser;
 import net.xdclass.controller.request.AccountLoginRequest;
 import net.xdclass.controller.request.AccountRegisterRequest;
 import net.xdclass.enums.AuthTypeEnum;
