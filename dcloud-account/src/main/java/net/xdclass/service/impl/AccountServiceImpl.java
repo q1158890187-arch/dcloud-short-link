@@ -93,7 +93,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public JsonData login(AccountLoginRequest accountLoginRequest) {
         List<AccountDO> accountDOList = accountManager.findByPhone(accountLoginRequest.getPhone());
-        if (CollUtil.isEmpty(accountDOList) && accountDOList.size() == 1) {
+        if (!CollUtil.isEmpty(accountDOList) && accountDOList.size() == 1) {
             AccountDO accountDO = accountDOList.get(0);
             String md5Crypt = Md5Crypt.md5Crypt(accountLoginRequest.getPwd().getBytes(), accountDO.getSecret());
             if (md5Crypt.equals(accountDO.getPwd())) {
