@@ -1,11 +1,11 @@
 server:
-  port: 8003
+  port: 8001
 
 
 #应用名称
 spring:
   application:
-    name: dcloud-link
+    name: dcloud-shop
 
   #服务注册发现
   cloud:
