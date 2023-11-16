@@ -4,6 +4,7 @@ import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.LinkApplication;
 import net.xdclass.component.ShortLinkComponent;
+import net.xdclass.strategy.ShardingDBConfig;
 import net.xdclass.util.CommonUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,18 @@ public class ShortLinkTest {
             String shortLinkCode = shortLinkComponent.createShortLinkCode(originalUrl);
             log.info("originalUrl:" + originalUrl + ", shortLinkCode=" + shortLinkCode);
         }
+    }
+
+
+    @Test
+    public void testRandomDB(){
+
+
+        for(int i=0;i<20;i++){
+            log.info(ShardingDBConfig.getRandomDBPrefix());
+        }
+
+
     }
 
 
