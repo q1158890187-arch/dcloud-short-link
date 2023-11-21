@@ -6,6 +6,7 @@ import net.xdclass.enums.BizCodeEnum;
 import net.xdclass.exception.BizException;
 import net.xdclass.model.EventMessage;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -19,11 +20,9 @@ import java.io.IOException;
  */
 @Component
 @Slf4j
-@RabbitListener(queues = "short_link.add.link.queue")
+// @RabbitListener(queues = "short_link.add.link.queue")
+@RabbitListener(queuesToDeclare = { @Queue("short_link.add.link.queue") })
 public class ShortLinkAddLinkMQListener {
-
-
-
     @RabbitHandler
     public void shortLinkHandler(EventMessage eventMessage, Message message, Channel channel) throws IOException {
         log.info("监听到消息ShortLinkAddLinkMQListener message消息内容:{}",message);
@@ -41,9 +40,6 @@ public class ShortLinkAddLinkMQListener {
         log.info("消费成功:{}",eventMessage);
         //确认消息消费成功
         channel.basicAck(tag,false);
-
     }
-
-
 
 }
