@@ -20,13 +20,11 @@ import java.io.IOException;
  */
 @Component
 @Slf4j
-// @RabbitListener(queues = "short_link.add.link.queue")
 @RabbitListener(queuesToDeclare = { @Queue("short_link.add.link.queue") })
 public class ShortLinkAddLinkMQListener {
     @RabbitHandler
     public void shortLinkHandler(EventMessage eventMessage, Message message, Channel channel) throws IOException {
         log.info("监听到消息ShortLinkAddLinkMQListener message消息内容:{}",message);
-        long tag = message.getMessageProperties().getDeliveryTag();
         try{
 
             //TODO 处理业务逻辑
@@ -39,7 +37,7 @@ public class ShortLinkAddLinkMQListener {
         }
         log.info("消费成功:{}",eventMessage);
         //确认消息消费成功
-        channel.basicAck(tag,false);
+        // channel.basicAck(tag,false);
     }
 
 }

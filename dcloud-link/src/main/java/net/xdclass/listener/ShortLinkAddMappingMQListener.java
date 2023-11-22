@@ -20,16 +20,15 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 @Component
 @Slf4j
-// @RabbitListener(queues = "short_link.add.mapping.queue")
 @RabbitListener(queuesToDeclare = { @Queue("short_link.add.mapping.queue") })
 public class ShortLinkAddMappingMQListener {
 
     @RabbitHandler
     public void shortLinkHandler(EventMessage eventMessage, Message message, Channel channel) throws IOException {
         log.info("监听到消息ShortLinkAddMappingMQListener message消息内容:{}", message);
-        long tag = message.getMessageProperties().getDeliveryTag();
         try {
 
+            int a = 0/0;
             //TODO 处理业务逻辑
 
         } catch (Exception e) {
@@ -40,7 +39,7 @@ public class ShortLinkAddMappingMQListener {
         }
         log.info("消费成功:{}", eventMessage);
         //确认消息消费成功
-        channel.basicAck(tag, false);
+        // channel.basicAck(tag, false);
     }
 }
 
