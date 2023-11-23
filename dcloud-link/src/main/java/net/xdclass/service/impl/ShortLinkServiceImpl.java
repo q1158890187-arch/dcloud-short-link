@@ -9,20 +9,18 @@ import net.xdclass.enums.EventMessageType;
 import net.xdclass.enums.ShortLinkStateEnum;
 import net.xdclass.interceptor.LoginInterceptor;
 import net.xdclass.manage.DomainManager;
+import net.xdclass.manage.GroupCodeMappingManager;
 import net.xdclass.manage.LinkGroupManager;
 import net.xdclass.manage.ShortLinkManager;
-import net.xdclass.model.DomainDO;
-import net.xdclass.model.EventMessage;
-import net.xdclass.model.LinkGroupDO;
-import net.xdclass.model.ShortLinkDO;
+import net.xdclass.model.*;
 import net.xdclass.service.ShortLinkService;
 import net.xdclass.util.CommonUtil;
 import net.xdclass.util.JsonData;
 import net.xdclass.util.JsonUtil;
 import net.xdclass.vo.ShortLinkVO;
-import org.apache.commons.codec.digest.Md5Crypt;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -53,16 +51,19 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     @Resource
     private ShortLinkComponent shortLinkComponent;
 
+    @Autowired
+    private GroupCodeMappingManager groupCodeMappingManager;
+
 
     @Override
     public ShortLinkVO parseShortLinkCode(String shortLinkCode) {
 
         ShortLinkDO shortLinkDO = shortLinkManager.findByShortLinCode(shortLinkCode);
-        if(shortLinkDO == null){
+        if (shortLinkDO == null) {
             return null;
         }
         ShortLinkVO shortLinkVO = new ShortLinkVO();
-        BeanUtils.copyProperties(shortLinkDO,shortLinkVO);
+        BeanUtils.copyProperties(shortLinkDO, shortLinkVO);
         return shortLinkVO;
     }
 
@@ -75,12 +76,11 @@ public class ShortLinkServiceImpl implements ShortLinkService {
                 .eventMessageType(EventMessageType.SHORT_LINK_ADD.name())
                 .build();
 
-        rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(),rabbitMQConfig.getShortLinkAddRoutingKey(),eventMessage);
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(), rabbitMQConfig.getShortLinkAddRoutingKey(), eventMessage);
         return JsonData.buildSuccess();
     }
 
     /**
-     *
      * 处理短链新增逻辑
      * <p>
      * //判断短链域名是否合法
@@ -91,6 +91,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      * //查询短链码是否存在
      * //构建短链对象
      * //保存数据库
+     *
      * @param eventMessage
      * @return
      */
@@ -112,20 +113,52 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         // 生成短链码
         String shortLinkCode = shortLinkComponent.createShortLinkCode(addRequest.getOriginalUrl());
 
-        ShortLinkDO shortLinkDO = ShortLinkDO.builder()
-                .accountNo(accountNo)
-                .code(shortLinkCode)
-                .title(addRequest.getTitle())
-                .originalUrl(addRequest.getOriginalUrl())
-                .domain(domainDO.getValue())
-                .groupId(linkGroupDO.getId())
-                .expired(addRequest.getExpired())
-                .sign(originalUrlDigest)
-                .state(ShortLinkStateEnum.ACTIVE.name())
-                .del(0)
-                .build();
-        shortLinkManager.addShortLink(shortLinkDO);
-        return true;
+        // 加锁 TODO
+
+        // 查询短链码有没有被占用，可以从数据库中找，也可以有其他方式（缓存等 待完善）
+        ShortLinkDO shortLinCodeDOInDB = shortLinkManager.findByShortLinCode(shortLinkCode);
+
+
+        if (shortLinCodeDOInDB == null) {
+            // 处理C端
+            if (EventMessageType.SHORT_LINK_ADD_LINK.name().equalsIgnoreCase(messageType)) {
+                ShortLinkDO shortLinkDO = ShortLinkDO.builder()
+                        .accountNo(accountNo)
+                        .code(shortLinkCode)
+                        .title(addRequest.getTitle())
+                        .originalUrl(addRequest.getOriginalUrl())
+                        .domain(domainDO.getValue())
+                        .groupId(linkGroupDO.getId())
+                        .expired(addRequest.getExpired())
+                        .sign(originalUrlDigest)
+                        .state(ShortLinkStateEnum.ACTIVE.name())
+                        .del(0)
+                        .build();
+                shortLinkManager.addShortLink(shortLinkDO);
+                return true;
+
+            } else if (EventMessageType.SHORT_LINK_ADD_MAPPING.name().equalsIgnoreCase(messageType)) {
+                // 处理B端
+                GroupCodeMappingDO groupCodeMappingDO = GroupCodeMappingDO.builder()
+                        .accountNo(accountNo)
+                        .code(shortLinkCode)
+                        .title(addRequest.getTitle())
+                        .originalUrl(addRequest.getOriginalUrl())
+                        .domain(domainDO.getValue())
+                        .groupId(linkGroupDO.getId())
+                        .expired(addRequest.getExpired())
+                        .sign(originalUrlDigest)
+                        .state(ShortLinkStateEnum.ACTIVE.name())
+                        .del(0)
+                        .build();
+
+                groupCodeMappingManager.add(groupCodeMappingDO);
+                return true;
+
+            }
+        }
+
+        return false;
     }
 
     /**
