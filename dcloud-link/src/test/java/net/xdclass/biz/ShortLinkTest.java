@@ -65,9 +65,9 @@ public class ShortLinkTest {
     public void testRandomDB(){
 
 
-        for(int i=0;i<20;i++){
-            log.info(ShardingDBConfig.getRandomDBPrefix());
-        }
+        // for(int i=0;i<20;i++){
+        //     log.info(ShardingDBConfig.getRandomDBPrefix());
+        // }
 
 
     }
@@ -108,5 +108,16 @@ public class ShortLinkTest {
 
     }
 
+    @Test
+    public void testGeneCode(){
+
+        for(int i=0; i<10;i++){
+            String url = "https://xdclass.net/download.html";
+            String shortLinkCode = shortLinkComponent.createShortLinkCode(url);
+            System.out.println(shortLinkCode);
+        }
+
+
+    }
 
 }

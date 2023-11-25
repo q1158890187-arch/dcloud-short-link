@@ -51,7 +51,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     @Resource
     private ShortLinkComponent shortLinkComponent;
 
-    @Autowired
+    @Resource
     private GroupCodeMappingManager groupCodeMappingManager;
 
 
@@ -113,14 +113,14 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         // 生成短链码
         String shortLinkCode = shortLinkComponent.createShortLinkCode(addRequest.getOriginalUrl());
 
-        // 加锁 TODO
+        // TODO 加锁
 
         // 查询短链码有没有被占用，可以从数据库中找，也可以有其他方式（缓存等 待完善）
         ShortLinkDO shortLinCodeDOInDB = shortLinkManager.findByShortLinCode(shortLinkCode);
 
 
         if (shortLinCodeDOInDB == null) {
-            // 处理C端
+            // C端处理
             if (EventMessageType.SHORT_LINK_ADD_LINK.name().equalsIgnoreCase(messageType)) {
                 ShortLinkDO shortLinkDO = ShortLinkDO.builder()
                         .accountNo(accountNo)
@@ -138,7 +138,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
                 return true;
 
             } else if (EventMessageType.SHORT_LINK_ADD_MAPPING.name().equalsIgnoreCase(messageType)) {
-                // 处理B端
+                // B端处理
                 GroupCodeMappingDO groupCodeMappingDO = GroupCodeMappingDO.builder()
                         .accountNo(accountNo)
                         .code(shortLinkCode)

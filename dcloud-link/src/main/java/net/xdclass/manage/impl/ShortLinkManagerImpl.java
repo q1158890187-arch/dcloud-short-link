@@ -36,7 +36,7 @@ public class ShortLinkManagerImpl implements ShortLinkManager {
     @Override
     public int del(String shortLinkCode, Long accountNo) {
 
-        ShortLinkDO shortLinkDO = ShortLinkDO.builder().build();
+        ShortLinkDO shortLinkDO = new ShortLinkDO();
         shortLinkDO.setDel(1);
 
         int rows = shortLinkMapper.update(shortLinkDO,

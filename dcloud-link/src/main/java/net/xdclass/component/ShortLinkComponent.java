@@ -30,7 +30,7 @@ public class ShortLinkComponent {
 
         String code = encodeToBase62(murmurhash);
         //进制转换
-        String shortLinkCode = ShardingDBConfig.getRandomDBPrefix( ) + code + ShardingTableConfig.getRandomTableSuffix();
+        String shortLinkCode = ShardingDBConfig.getRandomDBPrefix(code) + code + ShardingTableConfig.getRandomTableSuffix(code);
         return shortLinkCode;
     }
 
