@@ -61,7 +61,7 @@ public class ShortLinkController {
      * @param request
      * @return
      */
-    @PostMapping("del")
+    @PostMapping("/del")
     public JsonData del(@RequestBody ShortLinkDelRequest request){
 
         JsonData jsonData = shortLinkService.del(request);
@@ -74,7 +74,7 @@ public class ShortLinkController {
      * @param request
      * @return
      */
-    @PostMapping("del")
+    @PostMapping("/update")
     public JsonData update(@RequestBody ShortLinkUpdateRequest request){
 
         JsonData jsonData = shortLinkService.update(request);
