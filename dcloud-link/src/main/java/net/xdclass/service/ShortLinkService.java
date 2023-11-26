@@ -1,7 +1,9 @@
 package net.xdclass.service;
 
 import net.xdclass.controller.request.ShortLinkAddRequest;
+import net.xdclass.controller.request.ShortLinkDelRequest;
 import net.xdclass.controller.request.ShortLinkPageRequest;
+import net.xdclass.controller.request.ShortLinkUpdateRequest;
 import net.xdclass.model.EventMessage;
 import net.xdclass.util.JsonData;
 import net.xdclass.vo.ShortLinkVO;
@@ -42,4 +44,18 @@ public interface ShortLinkService {
      * @return
      */
     Map<String, Object> pageByGroupId(ShortLinkPageRequest request);
+
+    /**
+     * 删除短链
+     * @param request
+     * @return
+     */
+    JsonData del(ShortLinkDelRequest request);
+
+    /**
+     * 更新
+     * @param request
+     * @return
+     */
+    JsonData update(ShortLinkUpdateRequest request);
 }

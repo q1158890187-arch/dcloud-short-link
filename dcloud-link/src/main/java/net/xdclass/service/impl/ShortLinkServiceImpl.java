@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.xdclass.component.ShortLinkComponent;
 import net.xdclass.config.RabbitMQConfig;
 import net.xdclass.controller.request.ShortLinkAddRequest;
+import net.xdclass.controller.request.ShortLinkDelRequest;
 import net.xdclass.controller.request.ShortLinkPageRequest;
+import net.xdclass.controller.request.ShortLinkUpdateRequest;
 import net.xdclass.enums.DomainTypeEnum;
 import net.xdclass.enums.EventMessageType;
 import net.xdclass.enums.ShortLinkStateEnum;
@@ -15,10 +17,7 @@ import net.xdclass.manage.LinkGroupManager;
 import net.xdclass.manage.ShortLinkManager;
 import net.xdclass.model.*;
 import net.xdclass.service.ShortLinkService;
-import net.xdclass.util.CommonUtil;
-import net.xdclass.util.JsonData;
-import net.xdclass.util.JsonUtil;
-import net.xdclass.util.TimeUtil;
+import net.xdclass.util.*;
 import net.xdclass.vo.ShortLinkVO;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -224,6 +223,41 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         Map<String, Object> result = groupCodeMappingManager.pageShortLinkByGroupId(request.getPage(), request.getSize(), accountNo, request.getGroupId());
 
         return result;
+    }
+
+    @Override
+    public JsonData del(ShortLinkDelRequest request) {
+
+        Long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
+
+
+        EventMessage eventMessage = EventMessage.builder().accountNo(accountNo)
+                .content(JsonUtil.obj2Json(request))
+                .messageId(IDUtil.geneSnowFlakeID().toString())
+                .eventMessageType(EventMessageType.SHORT_LINK_DEL.name())
+                .build();
+
+        //TODO
+
+        return JsonData.buildSuccess();
+
+    }
+
+
+    @Override
+    public JsonData update(ShortLinkUpdateRequest request) {
+        Long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
+
+
+        EventMessage eventMessage = EventMessage.builder().accountNo(accountNo)
+                .content(JsonUtil.obj2Json(request))
+                .messageId(IDUtil.geneSnowFlakeID().toString())
+                .eventMessageType(EventMessageType.SHORT_LINK_UPDATE.name())
+                .build();
+
+        //TODO
+
+        return JsonData.buildSuccess();
     }
 
     /**
