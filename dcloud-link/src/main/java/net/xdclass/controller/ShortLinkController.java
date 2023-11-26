@@ -2,6 +2,7 @@ package net.xdclass.controller;
 
 
 import net.xdclass.controller.request.ShortLinkAddRequest;
+import net.xdclass.controller.request.ShortLinkPageRequest;
 import net.xdclass.service.ShortLinkService;
 import net.xdclass.util.JsonData;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * <p>
@@ -27,11 +29,29 @@ public class ShortLinkController {
     @Resource
     private ShortLinkService shortLinkService;
 
+    /**
+     * 新增短链
+     * @param request
+     * @return
+     */
     @PostMapping("/add")
     public JsonData createShortLink(@RequestBody ShortLinkAddRequest request){
         JsonData jsonData = shortLinkService.createShortLink(request);
         return jsonData;
     }
 
+    /**
+     * 分页查找短链
+     */
+
+    @RequestMapping("/page")
+    public JsonData pageByGroupId(@RequestBody ShortLinkPageRequest request){
+
+
+        Map<String,Object> result = shortLinkService.pageByGroupId(request);
+
+        return JsonData.buildSuccess(result);
+
+    }
 }
 

@@ -29,7 +29,7 @@ public class ShortLinkManagerImpl implements ShortLinkManager {
     public ShortLinkDO findByShortLinCode(String shortLinkCode) {
 
         ShortLinkDO shortLinkDO = shortLinkMapper.selectOne(
-                new QueryWrapper<ShortLinkDO>().eq("code", shortLinkCode));
+                new QueryWrapper<ShortLinkDO>().eq("code", shortLinkCode).eq("del", 0));
         return shortLinkDO;
     }
 

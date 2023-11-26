@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.xdclass.component.ShortLinkComponent;
 import net.xdclass.config.RabbitMQConfig;
 import net.xdclass.controller.request.ShortLinkAddRequest;
+import net.xdclass.controller.request.ShortLinkPageRequest;
 import net.xdclass.enums.DomainTypeEnum;
 import net.xdclass.enums.EventMessageType;
 import net.xdclass.enums.ShortLinkStateEnum;
@@ -29,6 +30,7 @@ import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -207,6 +209,21 @@ public class ShortLinkServiceImpl implements ShortLinkService {
             handlerAddShortLink(eventMessage);
         }
         return false;
+    }
+
+    /**
+     * 从B端查找，group_code_mapping表
+     * @param request
+     * @return
+     */
+    @Override
+    public Map<String, Object> pageByGroupId(ShortLinkPageRequest request) {
+
+        Long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
+
+        Map<String, Object> result = groupCodeMappingManager.pageShortLinkByGroupId(request.getPage(), request.getSize(), accountNo, request.getGroupId());
+
+        return result;
     }
 
     /**

@@ -54,7 +54,7 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
         Page<GroupCodeMappingDO> pageInfo = new Page<>(page, size);
 
         Page<GroupCodeMappingDO> groupCodeMappingDOPage = groupCodeMappingMapper.selectPage(pageInfo, new LambdaQueryWrapper<GroupCodeMappingDO>().eq(GroupCodeMappingDO::getAccountNo, accountNo)
-                .eq(GroupCodeMappingDO::getGroupId, groupId));
+                .eq(GroupCodeMappingDO::getGroupId, groupId).eq(GroupCodeMappingDO::getDel, 0));
 
         Map<String, Object> pageMap = new HashMap<>(3);
 

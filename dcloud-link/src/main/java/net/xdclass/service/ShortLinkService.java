@@ -1,9 +1,12 @@
 package net.xdclass.service;
 
 import net.xdclass.controller.request.ShortLinkAddRequest;
+import net.xdclass.controller.request.ShortLinkPageRequest;
 import net.xdclass.model.EventMessage;
 import net.xdclass.util.JsonData;
 import net.xdclass.vo.ShortLinkVO;
+
+import java.util.Map;
 
 /**
  * @description:
@@ -32,4 +35,11 @@ public interface ShortLinkService {
      * @return
      */
     boolean handlerAddShortLink(EventMessage eventMessage);
+
+    /**
+     * 分页查找短链
+     * @param request
+     * @return
+     */
+    Map<String, Object> pageByGroupId(ShortLinkPageRequest request);
 }
