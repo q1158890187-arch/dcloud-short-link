@@ -28,6 +28,7 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
 
     @Resource
     private GroupCodeMappingMapper groupCodeMappingMapper;
+
     @Override
     public GroupCodeMappingDO findByGroupIdAndMappingId(Long mappingId, Long accountNo, Long groupId) {
 
@@ -81,6 +82,16 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
         GroupCodeMappingDO groupCodeMappingDO = groupCodeMappingMapper.selectOne(new LambdaQueryWrapper<GroupCodeMappingDO>().eq(GroupCodeMappingDO::getCode, shortLinkCode)
                 .eq(GroupCodeMappingDO::getGroupId, id).eq(GroupCodeMappingDO::getAccountNo, accountNo));
         return groupCodeMappingDO;
+    }
+
+    @Override
+    public int update(GroupCodeMappingDO groupCodeMappingDO) {
+        int rows = groupCodeMappingMapper.update(null, new LambdaUpdateWrapper<GroupCodeMappingDO>()
+                .eq(GroupCodeMappingDO::getId, groupCodeMappingDO.getId()).eq(GroupCodeMappingDO::getAccountNo, groupCodeMappingDO.getAccountNo())
+                .eq(GroupCodeMappingDO::getGroupId, groupCodeMappingDO.getGroupId()).eq(GroupCodeMappingDO::getDel, 0)
+                .set(GroupCodeMappingDO::getTitle, groupCodeMappingDO.getTitle()).set(GroupCodeMappingDO::getDomain, groupCodeMappingDO.getDomain()));
+
+        return rows;
     }
 
     private GroupCodeMappingVO beanProcess(GroupCodeMappingDO groupCodeMappingDO) {

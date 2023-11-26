@@ -19,6 +19,7 @@ public interface ShortLinkService {
 
     /**
      * 解析短链
+     *
      * @param shortLinkCode
      * @return
      */
@@ -26,20 +27,15 @@ public interface ShortLinkService {
 
     /**
      * 创建短链
+     *
      * @param request
      * @return
      */
     JsonData createShortLink(ShortLinkAddRequest request);
 
     /**
-     * 处理新增短链消息
-     * @param eventMessage
-     * @return
-     */
-    boolean handlerAddShortLink(EventMessage eventMessage);
-
-    /**
      * 分页查找短链
+     *
      * @param request
      * @return
      */
@@ -47,6 +43,7 @@ public interface ShortLinkService {
 
     /**
      * 删除短链
+     *
      * @param request
      * @return
      */
@@ -54,8 +51,26 @@ public interface ShortLinkService {
 
     /**
      * 更新
+     *
      * @param request
      * @return
      */
     JsonData update(ShortLinkUpdateRequest request);
+
+    /**
+     * 处理新增短链消息
+     *
+     * @param eventMessage
+     * @return
+     */
+    boolean handleAddShortLink(EventMessage eventMessage);
+
+    /**
+     * 更新短链
+     *
+     * @param eventMessage
+     * @return
+     */
+    boolean handleUpdateShortLink(EventMessage eventMessage);
+
 }
