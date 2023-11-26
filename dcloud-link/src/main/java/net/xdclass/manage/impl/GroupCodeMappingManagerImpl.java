@@ -45,8 +45,8 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
     @Override
     public int del(GroupCodeMappingDO groupCodeMappingDO) {
         int rows = groupCodeMappingMapper.update(null, new LambdaUpdateWrapper<GroupCodeMappingDO>()
-                .eq(GroupCodeMappingDO::getCode, groupCodeMappingDO.getCode()).eq(GroupCodeMappingDO::getAccountNo, groupCodeMappingDO.getAccountNo())
-                .eq(GroupCodeMappingDO::getGroupId, groupCodeMappingDO.getGroupId()).set(GroupCodeMappingDO::getState, 1));
+                .eq(GroupCodeMappingDO::getId, groupCodeMappingDO.getId()).eq(GroupCodeMappingDO::getAccountNo, groupCodeMappingDO.getAccountNo())
+                .eq(GroupCodeMappingDO::getGroupId, groupCodeMappingDO.getGroupId()).set(GroupCodeMappingDO::getDel, 1));
         return rows;
     }
 
