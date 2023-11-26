@@ -32,12 +32,10 @@ public interface GroupCodeMappingManager {
 
     /**
      * 根据短链码删除
-     * @param shortLinkCode
-     * @param accountNo
-     * @param groupId
+     * @param groupCodeMappingDO
      * @return
      */
-    int del(String shortLinkCode,Long accountNo,Long groupId);
+    int del(GroupCodeMappingDO groupCodeMappingDO);
 
 
     /**

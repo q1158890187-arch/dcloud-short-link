@@ -229,6 +229,39 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         return false;
     }
 
+    @Override
+    public boolean handleDelShortLink(EventMessage eventMessage) {
+        Long accountNo = eventMessage.getAccountNo();
+        String messageType = eventMessage.getEventMessageType();
+
+        ShortLinkDelRequest request = JsonUtil.json2Obj(eventMessage.getContent(), ShortLinkDelRequest.class);
+
+        //C端解析
+        if(EventMessageType.SHORT_LINK_DEL_LINK.name().equalsIgnoreCase(messageType)){
+
+            ShortLinkDO shortLinkDO = ShortLinkDO.builder().code(request.getCode()).build();
+
+            int rows = shortLinkManager.del(shortLinkDO);
+
+            log.debug("删除C端短链:{}",rows);
+            return true;
+
+        }else if(EventMessageType.SHORT_LINK_DEL_MAPPING.name().equalsIgnoreCase(messageType)){
+
+            //B端处理
+            GroupCodeMappingDO groupCodeMappingDO = GroupCodeMappingDO.builder()
+                    .id(request.getMappingId()).accountNo(accountNo)
+                    .groupId(request.getGroupId()).build();
+
+            int rows = groupCodeMappingManager.del(groupCodeMappingDO);
+            log.debug("删除B端短链:{}",rows);
+            return true;
+
+        }
+
+        return false;
+    }
+
     /**
      * 从B端查找，group_code_mapping表
      *

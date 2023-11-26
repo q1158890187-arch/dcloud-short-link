@@ -43,10 +43,10 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
     }
 
     @Override
-    public int del(String shortLinkCode, Long accountNo, Long groupId) {
+    public int del(GroupCodeMappingDO groupCodeMappingDO) {
         int rows = groupCodeMappingMapper.update(null, new LambdaUpdateWrapper<GroupCodeMappingDO>()
-                .eq(GroupCodeMappingDO::getCode, shortLinkCode).eq(GroupCodeMappingDO::getAccountNo, accountNo)
-                .eq(GroupCodeMappingDO::getGroupId, groupId).set(GroupCodeMappingDO::getState, 1));
+                .eq(GroupCodeMappingDO::getCode, groupCodeMappingDO.getCode()).eq(GroupCodeMappingDO::getAccountNo, groupCodeMappingDO.getAccountNo())
+                .eq(GroupCodeMappingDO::getGroupId, groupCodeMappingDO.getGroupId()).set(GroupCodeMappingDO::getState, 1));
         return rows;
     }
 
