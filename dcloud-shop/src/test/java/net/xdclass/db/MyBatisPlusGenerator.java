@@ -53,7 +53,7 @@ public class MyBatisPlusGenerator {
         dsConfig.setDbType(DbType.MYSQL)
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 //TODO  TODO  TODO  TODO
-                .setUrl("jdbc:mysql://127.0.0.1:3306/dcloud_account?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai")
+                .setUrl("jdbc:mysql://127.0.0.1:3306/dcloud_shop?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai")
                 .setUsername("root")
                 .setPassword("1qazasdf");
 
@@ -73,7 +73,7 @@ public class MyBatisPlusGenerator {
 
                 // 生成的表, 支持多表一起生成，以数组形式填写
                 //TODO  TODO  TODO  TODO
-                .setInclude("account","traffic","traffic_task");
+                .setInclude("product");
 
         //4. 包名策略配置
         PackageConfig pkConfig = new PackageConfig();
