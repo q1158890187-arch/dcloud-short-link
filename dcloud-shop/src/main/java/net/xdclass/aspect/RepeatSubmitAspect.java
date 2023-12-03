@@ -13,12 +13,14 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
@@ -33,8 +35,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RepeatSubmitAspect {
 
-    @Autowired
+    @Resource
     private StringRedisTemplate redisTemplate;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     /**
      * 定义 @Pointcut注解表达式, 通过特定的规则来筛选连接点, 就是Pointcut，选中那几个你想要的方法
@@ -86,10 +91,14 @@ public class RepeatSubmitAspect {
             MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
             Method method = methodSignature.getMethod();
             String className = method.getDeclaringClass().getName();
-            String key = String.format("%s-%s-%s-%s",ipAddr,className,method,accountNo);
+            String key = "order-server:repeat_submit:"+CommonUtil.MD5(String.format("%s-%s-%s-%s",ipAddr,className,method,accountNo));
 
-            //加锁
-            res  = redisTemplate.opsForValue().setIfAbsent(key, "1", lockTime, TimeUnit.SECONDS);
+            // 加锁
+            // res  = redisTemplate.opsForValue().setIfAbsent(key, "1", lockTime, TimeUnit.SECONDS);
+
+            RLock lock = redissonClient.getLock(key);
+            // 尝试加锁，最多等待0秒，上锁以后5秒自动解锁 [lockTime默认为5s, 可以自定义]
+            res = lock.tryLock(0,lockTime,TimeUnit.SECONDS);
 
         }else {
             //方式二，令牌形式防重提交

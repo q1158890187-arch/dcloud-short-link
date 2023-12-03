@@ -88,6 +88,7 @@ public class ProductOrderController {
      * @param response
      */
     @PostMapping("/confirm")
+    //@RepeatSubmit(limitType = RepeatSubmit.Type.TOKEN)
     public void confirmOrder(@RequestBody ConfirmOrderRequest orderRequest, HttpServletResponse response) {
 
         JsonData jsonData = productOrderService.confirmOrder(orderRequest);
