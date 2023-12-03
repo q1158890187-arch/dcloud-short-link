@@ -15,6 +15,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -35,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RepeatSubmitAspect {
 
-    @Resource
+    @Autowired
     private StringRedisTemplate redisTemplate;
 
     @Resource

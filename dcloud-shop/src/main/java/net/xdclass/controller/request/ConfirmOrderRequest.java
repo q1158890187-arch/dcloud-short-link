@@ -21,7 +21,7 @@ public class ConfirmOrderRequest {
     /**
      * 购买数量
      */
-    private Integer buyNum;;
+    private Integer buyNum;
 
 
     /**

@@ -101,6 +101,7 @@ public class RabbitMQConfig {
      * 死信队列，是一个普通队列，用于被监听
      * @return
      */
+    @Bean
     public Queue orderCloseQueue(){
         return new Queue(orderCloseQueue,true,false,false);
     }
@@ -110,6 +111,7 @@ public class RabbitMQConfig {
      * 第一个队列 即延迟队列和交换机建立绑定关系
      * @return
      */
+    @Bean
     public Binding orderCloseDelayBinding(){
         return new Binding(orderCloseDelayQueue,
                 Binding.DestinationType.QUEUE,orderEventExchange,orderCloseDelayRoutingKey,null);

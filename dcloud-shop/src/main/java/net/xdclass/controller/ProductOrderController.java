@@ -57,8 +57,7 @@ public class ProductOrderController {
      */
     @PostMapping("/page")
     public JsonData page(
-            @RequestBody ProductOrderPageRequest orderPageRequest
-    ) {
+            @RequestBody ProductOrderPageRequest orderPageRequest) {
 
         Map<String, Object> pageResult = productOrderService.page(orderPageRequest);
         return JsonData.buildSuccess(pageResult);
@@ -113,7 +112,7 @@ public class ProductOrderController {
 
                 }
 
-            } else if (payType.equalsIgnoreCase(ProductOrderPayTypeEnum.WECHAT_APY.name())) {
+            } else if (payType.equalsIgnoreCase(ProductOrderPayTypeEnum.WECHAT_PAY.name())) {
                 //微信支付
                 CommonUtil.sendJsonMessage(response, jsonData);
             }
