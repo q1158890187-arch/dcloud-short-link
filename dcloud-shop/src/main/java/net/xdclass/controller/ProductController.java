@@ -29,21 +29,6 @@ public class ProductController {
     @Resource
     private ProductService productService;
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
-
-
-
-    @GetMapping("/token")
-    public JsonData getOrderToken(){
-
-        long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
-        String token = CommonUtil.getRandomCode(32);
-        String key = String.format(RedisKey.SUBMIT_ORDER_TOKEN_KEY,accountNo,token);
-        //令牌有效时间是30分钟
-        redisTemplate.opsForValue().set(key, String.valueOf(Thread.currentThread().getId()),30, TimeUnit.MINUTES);
-        return JsonData.buildSuccess(token);
-    }
 
     /**
      * 查看商品列表接口

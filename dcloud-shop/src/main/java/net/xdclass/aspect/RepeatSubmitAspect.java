@@ -33,7 +33,9 @@ public class RepeatSubmitAspect {
     private StringRedisTemplate redisTemplate;
 
     /**
-     * 定义 @Pointcut注解表达式，
+     * 定义 @Pointcut注解表达式, 通过特定的规则来筛选连接点, 就是Pointcut，选中那几个你想要的方法
+     * 在程序中主要体现为书写切入点表达式（通过通配、正则表达式）过滤出特定的一组 JointPoint连接点
+     * <p>
      * 方式一：@annotation：当执行的方法上拥有指定的注解时生效（我们采用这）
      * 方式二：execution：一般用于指定方法的执行
      */
