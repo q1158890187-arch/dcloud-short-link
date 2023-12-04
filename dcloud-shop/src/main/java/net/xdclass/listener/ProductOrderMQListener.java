@@ -24,25 +24,24 @@ import org.springframework.stereotype.Component;
 public class ProductOrderMQListener {
 
 
-
     @Autowired
     private ProductOrderService productOrderService;
 
 
     @RabbitHandler
-    public void productOrderHandler(EventMessage eventMessage, Message message, Channel channel){
-        log.info("监听到消息ProductOrderMQListener messsage消息内容:{}",message);
+    public void productOrderHandler(EventMessage eventMessage, Message message, Channel channel) {
+        log.info("监听到消息ProductOrderMQListener message消息内容:{}", message);
 
-        try{
+        try {
+            // 关闭订单
+            productOrderService.closeProductOrder(eventMessage);
 
-            //TODO
-
-        }catch (Exception e){
-            log.error("消费者失败:{}",eventMessage);
+        } catch (Exception e) {
+            log.error("消费者失败:{}", eventMessage);
             throw new BizException(BizCodeEnum.MQ_CONSUME_EXCEPTION);
         }
 
-        log.info("消费成功:{}",eventMessage);
+        log.info("消费成功:{}", eventMessage);
 
 
     }
