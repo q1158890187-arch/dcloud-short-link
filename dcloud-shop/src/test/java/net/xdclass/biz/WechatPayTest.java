@@ -8,6 +8,7 @@ import net.xdclass.config.WechatPayApi;
 import net.xdclass.config.WechatPayConfig;
 import net.xdclass.util.CommonUtil;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -116,4 +117,80 @@ public class WechatPayTest {
 
     }
 
+    /**
+     * 根据商户号订单号查询订单支付状态
+     *
+     * {"amount":{"payer_currency":"CNY","total":100},"appid":"wx5beac15ca207c40c",
+     * "mchid":"1601644442","out_trade_no":"fRAv2Ccpd8GxNEpKAt36X0fdL7WYbn0F",
+     * "promotion_detail":[],"scene_info":{"device_id":""},
+     * "trade_state":"NOTPAY","trade_state_desc":"订单未支付"}
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testNativeQuery() throws IOException {
+
+
+        String outTradeNo = "gqVVuYDQwp3L9zu4xl3bEif62zDweg7m";
+
+        String url = String.format(WechatPayApi.NATIVE_QUERY,outTradeNo,payConfig.getMchId());
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("Accept","application/json");
+
+        try(CloseableHttpResponse response = wechatPayClient.execute(httpGet)){
+
+            //响应码
+            int statusCode = response.getStatusLine().getStatusCode();
+            //响应体
+            String responseStr = EntityUtils.toString(response.getEntity());
+
+            log.info("查询响应码:{},响应体:{}",statusCode,responseStr);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+
+    @Test
+    public void testNativeCloseOrder() throws IOException {
+
+
+        String outTradeNo = "gqVVuYDQwp3L9zu4xl3bEif62zDweg7m";
+
+        JSONObject payObj = new JSONObject();
+        payObj.put("mchid",payConfig.getMchId());
+
+        String body = payObj.toJSONString();
+
+        log.info("请求参数:{}",body);
+
+        StringEntity entity = new StringEntity(body,"utf-8");
+        entity.setContentType("application/json");
+
+        String url = String.format(WechatPayApi.NATIVE_CLOSE_ORDER,outTradeNo);
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.setHeader("Accept","application/json");
+        httpPost.setEntity(entity);
+
+        try(CloseableHttpResponse response = wechatPayClient.execute(httpPost)){
+
+            //响应码
+            int statusCode = response.getStatusLine().getStatusCode();
+            log.info("关闭订单响应码:{},无响应体",statusCode);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+
+
 }
+
