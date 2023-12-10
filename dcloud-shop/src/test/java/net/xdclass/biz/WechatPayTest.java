@@ -252,7 +252,47 @@ public class WechatPayTest {
             e.printStackTrace();
         }
 
+    }
 
+
+    /**
+     * {"amount":{"currency":"CNY","discount_refund":0,"from":[],"payer_refund":10,
+     *
+     * "payer_total":100,"refund":10,"settlement_refund":10,"settlement_total":100,"total":100},
+     *
+     * "channel":"ORIGINAL","create_time":"2022-01-18T15:18:15+08:00","funds_account":"AVAILABLE",
+     *
+     * "out_refund_no":"leZlKkz6jTj7I4Sd2F04HdHLPRhXg0RK","out_trade_no":"HkPfPY0q3GwuYYUou0wfUnX34iRNYxXX",
+     *
+     * "promotion_detail":[],"refund_id":"50302000602022011816573309663","status":"SUCCESS",
+     *
+     * "success_time":"2022-01-18T15:18:24+08:00","transaction_id":"4200001392202201187404576924",
+     *
+     * "user_received_account":"民生银行信用卡5022"}
+     * @throws IOException
+     */
+    @Test
+    public void testNativeRefundQuery() throws IOException {
+
+
+        String refundNo = "leZlKkz6jTj7I4Sd2F04HdHLPRhXg0RK";
+
+        String url = String.format(WechatPayApi.NATIVE_REFUND_QUERY,refundNo);
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("Accept","application/json");
+
+        try(CloseableHttpResponse response = wechatPayClient.execute(httpGet)){
+
+            //响应码
+            int statusCode = response.getStatusLine().getStatusCode();
+            //响应体
+            String responseStr = EntityUtils.toString(response.getEntity());
+
+            log.info("查询订单退款 响应码:{},响应体:{}",statusCode,responseStr);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 
