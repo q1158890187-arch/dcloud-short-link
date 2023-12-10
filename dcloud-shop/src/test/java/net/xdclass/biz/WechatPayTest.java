@@ -186,10 +186,75 @@ public class WechatPayTest {
             e.printStackTrace();
         }
 
+    }
+
+    /**
+     * {"amount":{"currency":"CNY","discount_refund":0,"from":[],
+     *
+     * "payer_refund":10,"payer_total":100,"refund":10,
+     * "settlement_refund":10,"settlement_total":100,"total":100},
+     * "channel":"ORIGINAL","create_time":"2022-01-18T14:38:20+08:00",
+     * "funds_account":"AVAILABLE","out_refund_no":"unln6N45W2dJuhhDbe9zCx9m5wxHU9xT",
+     *
+     * "out_trade_no":"XH5U0QvInSNK2GPPwAMl2pVRmkKYPYzi","promotion_detail":[],
+     * "refund_id":"50300400552022011816562288005","status":"PROCESSING",
+     * "transaction_id":"4200001374202201184851061356","user_received_account":"民生银行信用卡5022"}
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testNativeRefundOrder() throws IOException {
+
+        String outTradeNo = "XH5U0QvInSNK2GPPwAMl2pVRmkKYPYzi";
+        String refundNo = CommonUtil.getStringNumRandom(32);
+
+        // 请求body参数
+        JSONObject refundObj = new JSONObject();
+        //订单号
+        refundObj.put("out_trade_no", outTradeNo);
+        //退款单编号，商户系统内部的退款单号，商户系统内部唯一，
+        // 只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔
+        refundObj.put("out_refund_no", refundNo);
+        refundObj.put("reason","商品已售完");
+        refundObj.put("notify_url", payConfig.getCallbackUrl());
+
+        JSONObject amountObj = new JSONObject();
+        //退款金额
+        amountObj.put("refund", 10);
+        //实际支付的总金额
+        amountObj.put("total", 100);
+        amountObj.put("currency", "CNY");
+
+        refundObj.put("amount", amountObj);
+
+
+        String body = refundObj.toJSONString();
+
+        log.info("请求参数:{}",body);
+
+        StringEntity entity = new StringEntity(body,"utf-8");
+        entity.setContentType("application/json");
+
+        HttpPost httpPost = new HttpPost(WechatPayApi.NATIVE_REFUND_ORDER);
+        httpPost.setHeader("Accept","application/json");
+        httpPost.setEntity(entity);
+
+        try(CloseableHttpResponse response = wechatPayClient.execute(httpPost)){
+
+            //响应码
+            int statusCode = response.getStatusLine().getStatusCode();
+            //响应体
+            String responseStr = EntityUtils.toString(response.getEntity());
+
+            log.info("申请订单退款响应码:{},响应体:{}",statusCode,responseStr);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
 
     }
-
 
 
 }
