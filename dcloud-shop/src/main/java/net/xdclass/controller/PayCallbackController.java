@@ -1,6 +1,8 @@
 package net.xdclass.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wechat.pay.contrib.apache.httpclient.auth.ScheduledUpdateCertificatesVerifier;
+import com.wechat.pay.contrib.apache.httpclient.util.AesUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.config.WechatPayConfig;
 import net.xdclass.service.ProductOrderService;
@@ -15,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -88,13 +91,18 @@ public class PayCallbackController {
             //验证签名是否通过
             boolean result = verifiedSign(serialNo, signStr, signature);
 
-            //解密数据 TODO
+            if (result) {
+                //解密数据
+                String plainBody = decryptBody(body);
+                log.info("微信支付回调，解密后的数据:{}", plainBody);
 
-            //处理业务逻辑 TODO
+                Map<String, String> paramsMap = convertWechatPayMsgToMap(plainBody);
+                //处理业务逻辑 TODO
 
-            //响应微信
-            map.put("code", "SUCCESS");
-            map.put("message", "成功");
+                //响应微信
+                map.put("code", "SUCCESS");
+                map.put("message", "成功");
+            }
 
         } catch (Exception e) {
             log.error("微信支付回调异常:{}", e);
@@ -102,6 +110,57 @@ public class PayCallbackController {
         return map;
     }
 
+    /**
+     * 转换body为map
+     * @param plainBody
+     * @return
+     */
+    private Map<String,String> convertWechatPayMsgToMap(String plainBody){
+
+        Map<String,String> paramsMap = new HashMap<>(2);
+
+        JSONObject jsonObject = JSONObject.parseObject(plainBody);
+
+        //商户订单号
+        paramsMap.put("out_trade_no",jsonObject.getString("out_trade_no"));
+
+        //交易状态
+        paramsMap.put("trade_status",jsonObject.getString("trade_status"));
+
+        //附加数据
+        paramsMap.put("account_no",jsonObject.getJSONObject("attach").getString("accountNo"));
+
+        return paramsMap;
+
+    }
+
+
+    /**
+     * 解密body的密文
+     *
+     * "resource": {
+     *         "original_type": "transaction",
+     *         "algorithm": "AEAD_AES_256_GCM",
+     *         "ciphertext": "",
+     *         "associated_data": "",
+     *         "nonce": ""
+     *     }
+     *
+     * @param body
+     * @return
+     */
+    private String decryptBody(String body) throws UnsupportedEncodingException, GeneralSecurityException {
+
+        AesUtil aesUtil = new AesUtil(wechatPayConfig.getApiV3Key().getBytes("utf-8"));
+
+        JSONObject object = JSONObject.parseObject(body);
+        JSONObject resource = object.getJSONObject("resource");
+        String ciphertext = resource.getString("ciphertext");
+        String associatedData = resource.getString("associated_data");
+        String nonce = resource.getString("nonce");
+
+        return aesUtil.decryptToString(associatedData.getBytes("utf-8"),nonce.getBytes("utf-8"),ciphertext);
+    }
 
     /**
      * 验证签名
