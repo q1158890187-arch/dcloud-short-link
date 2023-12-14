@@ -5,6 +5,7 @@ import com.wechat.pay.contrib.apache.httpclient.auth.ScheduledUpdateCertificates
 import com.wechat.pay.contrib.apache.httpclient.util.AesUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.config.WechatPayConfig;
+import net.xdclass.enums.ProductOrderPayTypeEnum;
 import net.xdclass.service.ProductOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -99,7 +100,8 @@ public class PayCallbackController {
                 log.info("微信支付回调，解密后的数据:{}", plainBody);
 
                 Map<String, String> paramsMap = convertWechatPayMsgToMap(plainBody);
-                //处理业务逻辑 TODO
+                //处理业务逻辑
+                productOrderService.processOrderCallbackMsg(ProductOrderPayTypeEnum.WECHAT_PAY,paramsMap);
 
                 //响应微信
                 map.put("code", "SUCCESS");

@@ -2,6 +2,7 @@ package net.xdclass.service;
 
 import net.xdclass.controller.request.ConfirmOrderRequest;
 import net.xdclass.controller.request.ProductOrderPageRequest;
+import net.xdclass.enums.ProductOrderPayTypeEnum;
 import net.xdclass.model.EventMessage;
 import net.xdclass.util.JsonData;
 
@@ -22,4 +23,10 @@ public interface ProductOrderService {
 
     Boolean closeProductOrder(EventMessage eventMessage);
 
+    /**
+     * 处理微信回调通知
+     * @param payType
+     * @param paramsMap
+     */
+    JsonData processOrderCallbackMsg(ProductOrderPayTypeEnum payType, Map<String, String> paramsMap);
 }
