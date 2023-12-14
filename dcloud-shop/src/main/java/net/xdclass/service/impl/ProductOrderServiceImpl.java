@@ -22,6 +22,7 @@ import net.xdclass.util.JsonUtil;
 import net.xdclass.vo.PayInfoVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description:
@@ -55,6 +57,9 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
     @Resource
     private PayFactory payFactory;
+
+    @Resource
+    private RedisTemplate<Object, Object> redisTemplate;
 
     @Override
     public Map<String, Object> page(ProductOrderPageRequest orderPageRequest) {
@@ -211,9 +216,14 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         } else if (payType.name().equalsIgnoreCase(ProductOrderPayTypeEnum.WECHAT_PAY.name())) {
 
             if ("SUCCESS".equalsIgnoreCase(tradeState)) {
-                rabbitTemplate.convertAndSend(rabbitMQConfig.getOrderEventExchange(), rabbitMQConfig.getOrderUpdateTrafficRoutingKey(), eventMessage);
 
-                return JsonData.buildSuccess();
+                // 如果key不存在，则设置成功，返回true
+                Boolean flag = redisTemplate.opsForValue().setIfAbsent(outTradeNo, "OK", 3, TimeUnit.DAYS);]
+                if (flag) {
+                    rabbitTemplate.convertAndSend(rabbitMQConfig.getOrderEventExchange(), rabbitMQConfig.getOrderUpdateTrafficRoutingKey(), eventMessage);
+                    return JsonData.buildSuccess();
+                }
+
             }
         }
 
