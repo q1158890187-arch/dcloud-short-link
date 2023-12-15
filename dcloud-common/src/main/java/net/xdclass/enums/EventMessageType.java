@@ -65,5 +65,5 @@ public enum  EventMessageType {
     /**
      * 订单支付
      */
-    ORDER_PAY;
+    PRODUCT_ORDER_PAY;
 }

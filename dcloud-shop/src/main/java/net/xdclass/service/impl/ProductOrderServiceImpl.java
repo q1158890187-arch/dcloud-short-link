@@ -207,7 +207,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         content.put("product", productOrderDO.getProductSnapshot());
 
         // 构建消息
-        EventMessage eventMessage = EventMessage.builder().bizId(outTradeNo).accountNo(accountNo).messageId(outTradeNo).content(JsonUtil.obj2Json(content)).eventMessageType(EventMessageType.ORDER_PAY.name()).build();
+        EventMessage eventMessage = EventMessage.builder().bizId(outTradeNo).accountNo(accountNo).messageId(outTradeNo).content(JsonUtil.obj2Json(content)).eventMessageType(EventMessageType.PRODUCT_ORDER_PAY.name()).build();
 
 
         if (payType.name().equalsIgnoreCase(ProductOrderPayTypeEnum.ALI_PAY.name())) {
@@ -218,7 +218,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             if ("SUCCESS".equalsIgnoreCase(tradeState)) {
 
                 // 如果key不存在，则设置成功，返回true
-                Boolean flag = redisTemplate.opsForValue().setIfAbsent(outTradeNo, "OK", 3, TimeUnit.DAYS);]
+                Boolean flag = redisTemplate.opsForValue().setIfAbsent(outTradeNo, "OK", 3, TimeUnit.DAYS);
                 if (flag) {
                     rabbitTemplate.convertAndSend(rabbitMQConfig.getOrderEventExchange(), rabbitMQConfig.getOrderUpdateTrafficRoutingKey(), eventMessage);
                     return JsonData.buildSuccess();
@@ -230,6 +230,36 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         return JsonData.buildResult(BizCodeEnum.PAY_ORDER_CALLBACK_NOT_SUCCESS);
     }
 
+    /**
+     * 处理订单相关消息
+     * @param message
+     */
+    @Override
+    public void handleProductOrderMessage(EventMessage message) {
+
+        String messageType = message.getEventMessageType();
+
+        try{
+
+            if(EventMessageType.PRODUCT_ORDER_NEW.name().equalsIgnoreCase(messageType)){
+                //关闭订单
+                this.closeProductOrder(message);
+
+            } else if(EventMessageType.PRODUCT_ORDER_PAY.name().equalsIgnoreCase(messageType)){
+                //订单已经支付，更新订单状态
+                String outTradeNo = message.getBizId();
+                Long accountNo = message.getAccountNo();
+                int rows = productOrderManager.updateOrderPayState(outTradeNo,accountNo,
+                        ProductOrderStateEnum.PAY.name(),ProductOrderStateEnum.NEW.name());
+                log.info("订单更新成功:rows={},eventMessage={}",rows,message);
+            }
+
+        }catch (Exception e){
+            log.error("订单消费者消费失败:{}",message);
+            throw new BizException(BizCodeEnum.MQ_CONSUME_EXCEPTION);
+        }
+
+    }
 
     private ProductOrderDO saveProductOrder(ConfirmOrderRequest orderRequest, LoginUser loginUser, String orderOutTradeNo, ProductDO productDO) {
         ProductOrderDO productOrderDO = new ProductOrderDO();

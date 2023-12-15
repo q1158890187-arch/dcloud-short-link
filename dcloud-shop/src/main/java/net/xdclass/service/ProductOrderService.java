@@ -29,4 +29,10 @@ public interface ProductOrderService {
      * @param paramsMap
      */
     JsonData processOrderCallbackMsg(ProductOrderPayTypeEnum payType, Map<String, String> paramsMap);
+
+    /**
+     * 处理 队列里面的订单相关消息
+     * @param message
+     */
+    void handleProductOrderMessage(EventMessage message);
 }

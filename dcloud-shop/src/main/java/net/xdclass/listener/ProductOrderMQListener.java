@@ -20,7 +20,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-@RabbitListener(queuesToDeclare = {@Queue("order.close.queue")})
+@RabbitListener(queuesToDeclare = {
+        @Queue("order.close.queue"),
+        @Queue("order.update.queue")
+})
 public class ProductOrderMQListener {
 
 
@@ -33,8 +36,8 @@ public class ProductOrderMQListener {
         log.info("监听到消息ProductOrderMQListener message消息内容:{}", message);
 
         try {
-            // 关闭订单
-            productOrderService.closeProductOrder(eventMessage);
+
+            productOrderService.handleProductOrderMessage(eventMessage);
 
         } catch (Exception e) {
             log.error("消费者失败:{}", eventMessage);
