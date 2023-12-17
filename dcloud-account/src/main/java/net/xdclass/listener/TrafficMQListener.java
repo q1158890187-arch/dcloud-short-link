@@ -1,0 +1,49 @@
+package net.xdclass.listener;
+
+import com.rabbitmq.client.Channel;
+import lombok.extern.slf4j.Slf4j;
+import net.xdclass.enums.BizCodeEnum;
+import net.xdclass.exception.BizException;
+import net.xdclass.model.EventMessage;
+import net.xdclass.service.TrafficService;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+
+/**
+ * @description:
+ * @author: zhengqinghua
+ * @date: 2023/12/17 16:33
+ */
+@Component
+@RabbitListener(queuesToDeclare = {
+        @Queue("order.traffic.queue")
+})
+@Slf4j
+public class TrafficMQListener {
+
+    @Resource
+    private TrafficService trafficService;
+
+
+    public void trafficHandler(EventMessage eventMessage, Message message, Channel channel){
+
+        log.info("监听到消息trafficHandler:{}",eventMessage);
+
+        try{
+
+            trafficService.handleTrafficMessage(eventMessage);
+
+        }catch (Exception e){
+            log.error("消费者失败:{}",eventMessage);
+            throw new BizException(BizCodeEnum.MQ_CONSUME_EXCEPTION);
+        }
+
+        log.info("消费成功:{}",eventMessage);
+
+    }
+
+}
