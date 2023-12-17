@@ -1,9 +1,8 @@
-package net.xdclass.manager;
+package net.xdclass.manager.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
-import net.xdclass.manager.impl.AccountManager;
+import net.xdclass.manager.AccountManager;
 import net.xdclass.mapper.AccountMapper;
 import net.xdclass.model.AccountDO;
 import org.springframework.stereotype.Component;

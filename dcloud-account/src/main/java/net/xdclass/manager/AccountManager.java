@@ -1,4 +1,4 @@
-package net.xdclass.manager.impl;
+package net.xdclass.manager;
 
 import net.xdclass.model.AccountDO;
 

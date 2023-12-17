@@ -8,7 +8,7 @@ import net.xdclass.controller.request.AccountRegisterRequest;
 import net.xdclass.enums.AuthTypeEnum;
 import net.xdclass.enums.BizCodeEnum;
 import net.xdclass.enums.SendCodeEnum;
-import net.xdclass.manager.impl.AccountManager;
+import net.xdclass.manager.AccountManager;
 import net.xdclass.model.AccountDO;
 import net.xdclass.service.AccountService;
 import net.xdclass.service.NotifyService;
