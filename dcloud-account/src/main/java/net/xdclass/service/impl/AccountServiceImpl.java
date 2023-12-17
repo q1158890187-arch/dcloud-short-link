@@ -2,6 +2,9 @@ package net.xdclass.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.xdclass.config.RabbitMQConfig;
+import net.xdclass.enums.EventMessageType;
+import net.xdclass.model.EventMessage;
 import net.xdclass.model.LoginUser;
 import net.xdclass.controller.request.AccountLoginRequest;
 import net.xdclass.controller.request.AccountRegisterRequest;
@@ -18,8 +21,12 @@ import net.xdclass.util.JWTUtil;
 import net.xdclass.util.JsonData;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -42,6 +49,17 @@ public class AccountServiceImpl implements AccountService {
     @Resource
     private AccountManager accountManager;
 
+    @Resource
+    private RabbitTemplate rabbitTemplate;
+
+    @Resource
+    private RabbitMQConfig rabbitMQConfig;
+
+    /**
+     * 免费流量包商品id
+     */
+    private static final Long FREE_TRAFFIC_PRODUCT_ID = 1L;
+
     /**
      * 手机验证码验证
      * 密码加密（TODO）
@@ -53,6 +71,7 @@ public class AccountServiceImpl implements AccountService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
     public JsonData register(AccountRegisterRequest registerRequest) {
         boolean checkCode = false;
         // 判断验证码是否正确
@@ -78,7 +97,7 @@ public class AccountServiceImpl implements AccountService {
         int rows = accountManager.insert(accountDO);
         log.info("rows:{},注册成功:{}", rows, accountDO);
 
-        // 用户注册成功，发放福利 TODO
+        // 用户注册成功，发放福利
         userRegisterInitTask(accountDO);
 
         return JsonData.buildSuccess();
@@ -113,11 +132,21 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 用户注册成功，发放福利 TODO
-     *
+     * 用户初始化，发放福利：流量包
      * @param accountDO
      */
     private void userRegisterInitTask(AccountDO accountDO) {
+
+        EventMessage eventMessage = EventMessage.builder()
+                .messageId(IDUtil.geneSnowFlakeID().toString())
+                .accountNo(accountDO.getAccountNo())
+                .eventMessageType(EventMessageType.TRAFFIC_FREE_INIT.name())
+                .bizId(FREE_TRAFFIC_PRODUCT_ID.toString())
+                .build();
+
+        //发送发放流量包消息
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getTrafficEventExchange(),
+                rabbitMQConfig.getTrafficFreeInitRoutingKey(),eventMessage);
 
     }
 }

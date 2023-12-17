@@ -21,7 +21,8 @@ import javax.annotation.Resource;
  */
 @Component
 @RabbitListener(queuesToDeclare = {
-        @Queue("order.traffic.queue")
+        @Queue("order.traffic.queue"),
+        @Queue("traffic.free_init.queue")
 })
 @Slf4j
 public class TrafficMQListener {

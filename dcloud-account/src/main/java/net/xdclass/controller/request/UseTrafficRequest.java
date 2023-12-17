@@ -11,9 +11,6 @@ import lombok.NoArgsConstructor;
  * @date: 2023/12/17 17:14
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class UseTrafficRequest {
 
 

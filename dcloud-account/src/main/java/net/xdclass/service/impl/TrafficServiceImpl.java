@@ -1,15 +1,18 @@
 package net.xdclass.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.controller.request.TrafficPageRequest;
 import net.xdclass.enums.EventMessageType;
+import net.xdclass.feign.ProductFeignService;
 import net.xdclass.interceptor.LoginInterceptor;
 import net.xdclass.manager.TrafficManager;
 import net.xdclass.model.EventMessage;
 import net.xdclass.model.LoginUser;
 import net.xdclass.model.TrafficDO;
 import net.xdclass.service.TrafficService;
+import net.xdclass.util.JsonData;
 import net.xdclass.util.JsonUtil;
 import net.xdclass.vo.ProductVO;
 import net.xdclass.vo.TrafficVO;
@@ -39,10 +42,14 @@ public class TrafficServiceImpl implements TrafficService {
     @Resource
     private TrafficManager trafficManager;
 
+    @Resource
+    private ProductFeignService productFeignService;
+
     @Override
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public void handleTrafficMessage(EventMessage eventMessage) {
 
+        Long accountNo = eventMessage.getAccountNo();
         String messageType = eventMessage.getEventMessageType();
         if (EventMessageType.PRODUCT_ORDER_PAY.name().equalsIgnoreCase(messageType)) {
 
@@ -52,7 +59,6 @@ public class TrafficServiceImpl implements TrafficService {
             Map<String, Object> orderInfoMap = JsonUtil.json2Obj(content, Map.class);
 
             // 还原订单商品信息
-            Long accountNo = (Long) orderInfoMap.get("accountNo");
             String outTradeNo = (String) orderInfoMap.get("outTradeNo");
             Integer buyNum = (Integer) orderInfoMap.get("buyNum");
             String productStr = (String) orderInfoMap.get("product");
@@ -77,6 +83,26 @@ public class TrafficServiceImpl implements TrafficService {
 
             int rows = trafficManager.add(trafficDO);
             log.info("消费消息新增流量包:rows={},trafficDO={}", rows, trafficDO);
+        } else if (EventMessageType.TRAFFIC_FREE_INIT.name().equalsIgnoreCase(messageType)) {
+            // 发放免费流量包
+            Long productId = Long.valueOf(eventMessage.getBizId());
+
+            JsonData jsonData = productFeignService.detail(productId);
+            ProductVO productVO = jsonData.getData(new TypeReference<ProductVO>() {
+            });
+            // 构建流量包对象
+            TrafficDO trafficDO = TrafficDO.builder()
+                    .accountNo(accountNo)
+                    .dayLimit(productVO.getDayTimes())
+                    .dayUsed(0)
+                    .totalLimit(productVO.getTotalTimes())
+                    .pluginType(productVO.getPluginType())
+                    .level(productVO.getLevel())
+                    .productId(productVO.getId())
+                    .outTradeNo("free_init")
+                    .expiredDate(new Date())
+                    .build();
+            trafficManager.add(trafficDO);
         }
     }
 
@@ -89,15 +115,15 @@ public class TrafficServiceImpl implements TrafficService {
 
         IPage<TrafficDO> trafficDOIPage = trafficManager.pageAvailable(page, size, loginUser.getAccountNo());
 
-        //获取流量包列表
+        // 获取流量包列表
         List<TrafficDO> records = trafficDOIPage.getRecords();
 
         List<TrafficVO> trafficVOList = records.stream().map(this::beanProcess).collect(Collectors.toList());
 
         Map<String, Object> pageMap = new HashMap<>(3);
         pageMap.put("total_record", trafficDOIPage.getTotal());
-        pageMap.put("total_page",trafficDOIPage.getPages());
-        pageMap.put("current_data",trafficVOList);
+        pageMap.put("total_page", trafficDOIPage.getPages());
+        pageMap.put("current_data", trafficVOList);
         return pageMap;
     }
 
@@ -114,7 +140,7 @@ public class TrafficServiceImpl implements TrafficService {
     private TrafficVO beanProcess(TrafficDO trafficDO) {
 
         TrafficVO trafficVO = new TrafficVO();
-        BeanUtils.copyProperties(trafficDO,trafficVO);
+        BeanUtils.copyProperties(trafficDO, trafficVO);
         return trafficVO;
     }
 
