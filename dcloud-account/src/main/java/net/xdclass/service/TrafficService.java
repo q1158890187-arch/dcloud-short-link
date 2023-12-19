@@ -18,4 +18,9 @@ public interface TrafficService {
     Map<String,Object> pageAvailable(TrafficPageRequest request);
 
     TrafficVO detail(long trafficId);
+
+    /**
+     * 删除过期流量包
+     */
+    boolean deleteExpireTraffic();
 }

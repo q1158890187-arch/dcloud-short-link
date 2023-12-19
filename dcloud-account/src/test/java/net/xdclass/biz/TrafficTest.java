@@ -2,6 +2,7 @@ package net.xdclass.biz;
 
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.AccountApplication;
+import net.xdclass.manager.TrafficManager;
 import net.xdclass.mapper.TrafficMapper;
 import net.xdclass.model.TrafficDO;
 import org.junit.Test;
@@ -26,6 +27,8 @@ public class TrafficTest {
     @Autowired
     private TrafficMapper trafficMapper;
 
+    @Autowired
+    private TrafficManager trafficManager;
 
     @Test
     public void testSaveTraffic() {
@@ -41,4 +44,10 @@ public class TrafficTest {
     }
 
 
+    @Test
+    public void testDeleteExpiredTraffic(){
+
+        trafficManager.deleteExpireTraffic();
+
+    }
 }

@@ -1,5 +1,6 @@
 package net.xdclass.manager.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -64,5 +65,12 @@ public class TrafficManagerImpl implements TrafficManager {
         return trafficMapper.update(null, new UpdateWrapper<TrafficDO>()
                 .eq("account_no", accountNo)
                 .eq("id", currentTrafficId).set("day_used", dayUsedTimes));
+    }
+
+    @Override
+    public boolean deleteExpireTraffic() {
+        int rows = trafficMapper.delete(new LambdaQueryWrapper<TrafficDO>().le(TrafficDO::getExpiredDate, new Date()));
+        log.info("删除过期流量包行数：rows={}", rows);
+        return true;
     }
 }
