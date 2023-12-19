@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -48,6 +50,40 @@ public class TrafficTest {
     public void testDeleteExpiredTraffic(){
 
         trafficManager.deleteExpireTraffic();
+
+    }
+
+    @Test
+    public void testSelectAvailableTraffics(){
+
+        List<TrafficDO> list = trafficManager.selectAvailableTraffics(693100647796441088L);
+        list.stream().forEach(obj->{
+            log.info(obj.toString());
+        });
+
+    }
+    @Test
+    public void testAddDayUsedTimes(){
+
+        int rows = trafficManager.addDayUsedTimes(693100647796441088L,1486221880318595076L,1);
+
+        log.info("rows={}",rows);
+    }
+
+    @Test
+    public void testReleaseDayUsedTimes(){
+
+        int rows = trafficManager.releaseUsedTimes(693100647796441088L,1486221880318595076L,1);
+
+        log.info("rows={}",rows);
+    }
+
+    @Test
+    public void testBatchUpdateUsedTimes(){
+        List<Long> list = new ArrayList<>();
+        list.add(1486221880318595076L);
+        int rows = trafficManager.batchUpdateUsedTimes(693100647796441088L,list);
+        log.info("rows={}",rows);
 
     }
 }

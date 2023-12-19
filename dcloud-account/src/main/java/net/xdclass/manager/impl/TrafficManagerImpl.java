@@ -2,7 +2,7 @@ package net.xdclass.manager.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description:
@@ -52,20 +53,6 @@ public class TrafficManagerImpl implements TrafficManager {
         return trafficDO;
     }
 
-    /**
-     * 给某个流量包增加天使用次数
-     *
-     * @param currentTrafficId
-     * @param accountNo
-     * @param dayUsedTimes
-     * @return
-     */
-    @Override
-    public int addDayUsedTimes(long currentTrafficId, Long accountNo, int dayUsedTimes) {
-        return trafficMapper.update(null, new UpdateWrapper<TrafficDO>()
-                .eq("account_no", accountNo)
-                .eq("id", currentTrafficId).set("day_used", dayUsedTimes));
-    }
 
     @Override
     public boolean deleteExpireTraffic() {
@@ -73,4 +60,60 @@ public class TrafficManagerImpl implements TrafficManager {
         log.info("删除过期流量包行数：rows={}", rows);
         return true;
     }
+
+    /**
+     * 查找未过期流量列表（不一定可用，可能超过次数）
+     * select * from traffic where account_no =111 and (expired_date >= ? OR out_trade_no=free_init )
+     *
+     * @param accountNo
+     * @return
+     */
+    @Override
+    public List<TrafficDO> selectAvailableTraffics(Long accountNo) {
+        String today = TimeUtil.format(new Date(), "yyyy-MM-dd");
+
+        LambdaQueryWrapper<TrafficDO> queryWrapper = new LambdaQueryWrapper<>();
+
+        queryWrapper.eq(TrafficDO::getAccountNo, accountNo);
+        queryWrapper.and(wrapper -> wrapper.ge(TrafficDO::getExpiredDate, today)
+                .or().eq(TrafficDO::getOutTradeNo, "free_init"));
+        return trafficMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 增加流量包使用次数
+     *
+     * @param accountNo
+     * @param trafficId
+     * @param usedTimes
+     * @return
+     */
+    @Override
+    public int addDayUsedTimes(Long accountNo, Long trafficId, Integer usedTimes) {
+        return trafficMapper.addDayUsedTimes(accountNo, trafficId, usedTimes);
+    }
+
+    /**
+     * 恢复某个流量包使用次数，回滚流量包
+     *
+     * @param accountNo
+     * @param trafficId
+     * @param usedTimes
+     * @return
+     */
+    @Override
+    public int releaseUsedTimes(long accountNo, Long trafficId, Integer usedTimes) {
+        return trafficMapper.releaseUsedTimes(accountNo,trafficId,usedTimes);
+    }
+
+    @Override
+    public int batchUpdateUsedTimes(Long accountNo, List<Long> unUpdatedTrafficIds) {
+        int rows = trafficMapper.update(null, new LambdaUpdateWrapper<TrafficDO>()
+                .eq(TrafficDO::getAccountNo, accountNo)
+                .in(TrafficDO::getId, unUpdatedTrafficIds)
+                .set(TrafficDO::getDayLimit, 0));
+        return rows;
+    }
+
+
 }
