@@ -6,6 +6,7 @@ import net.xdclass.service.TrafficService;
 import net.xdclass.util.JsonData;
 import net.xdclass.vo.TrafficVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +24,8 @@ public class TrafficController {
     @Autowired
     private TrafficService trafficService;
 
+    @Value("${rpc.token}")
+    private String rpcToken;
 
     /**
      * 使用流量包API
@@ -34,9 +37,14 @@ public class TrafficController {
     @PostMapping("reduce")
     public JsonData useTraffic(@RequestBody UseTrafficRequest useTrafficRequest, HttpServletRequest request){
 
-        //具体使用流量包逻辑  TODO
-        JsonData jsonData = trafficService.reduce(useTrafficRequest);
-        return jsonData;
+        String requestToken = request.getHeader("rpc-token");
+        if (rpcToken.equals(requestToken)){
+            // 具体的访问逻辑
+            JsonData jsonData = trafficService.reduce(useTrafficRequest);
+            return jsonData;
+        } else {
+            return JsonData.buildError("非法访问");
+        }
     }
 
     /**

@@ -3,13 +3,11 @@ package net.xdclass.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.component.ShortLinkComponent;
 import net.xdclass.config.RabbitMQConfig;
-import net.xdclass.controller.request.ShortLinkAddRequest;
-import net.xdclass.controller.request.ShortLinkDelRequest;
-import net.xdclass.controller.request.ShortLinkPageRequest;
-import net.xdclass.controller.request.ShortLinkUpdateRequest;
+import net.xdclass.controller.request.*;
 import net.xdclass.enums.DomainTypeEnum;
 import net.xdclass.enums.EventMessageType;
 import net.xdclass.enums.ShortLinkStateEnum;
+import net.xdclass.feign.TrafficFeignService;
 import net.xdclass.interceptor.LoginInterceptor;
 import net.xdclass.manage.DomainManager;
 import net.xdclass.manage.GroupCodeMappingManager;
@@ -61,6 +59,9 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
     @Resource
     private RedisTemplate<Object, Object> redisTemplate;
+
+    @Resource
+    private TrafficFeignService trafficFeignService;
 
 
     @Override
@@ -145,11 +146,14 @@ public class ShortLinkServiceImpl implements ShortLinkService {
                 ShortLinkDO shortLinCodeDOInDB = shortLinkManager.findByShortLinCode(shortLinkCode);
 
                 if (shortLinCodeDOInDB == null) {
-                    ShortLinkDO shortLinkDO = ShortLinkDO.builder()
-                            .accountNo(accountNo).code(shortLinkCode).title(addRequest.getTitle()).originalUrl(addRequest.getOriginalUrl()).domain(domainDO.getValue())
-                            .groupId(linkGroupDO.getId()).expired(addRequest.getExpired()).sign(originalUrlDigest).state(ShortLinkStateEnum.ACTIVE.name()).del(0).build();
-                    shortLinkManager.addShortLink(shortLinkDO);
-                    return true;
+                    boolean reduceFlag = reduceTraffic(eventMessage, shortLinkCode);
+                    if (reduceFlag) {
+                        ShortLinkDO shortLinkDO = ShortLinkDO.builder()
+                                .accountNo(accountNo).code(shortLinkCode).title(addRequest.getTitle()).originalUrl(addRequest.getOriginalUrl()).domain(domainDO.getValue())
+                                .groupId(linkGroupDO.getId()).expired(addRequest.getExpired()).sign(originalUrlDigest).state(ShortLinkStateEnum.ACTIVE.name()).del(0).build();
+                        shortLinkManager.addShortLink(shortLinkDO);
+                        return true;
+                    }
                 } else {
                     log.error("C端短链码重复:{}", eventMessage);
                     duplicateCodeFlag = true;
@@ -191,6 +195,26 @@ public class ShortLinkServiceImpl implements ShortLinkService {
             handleAddShortLink(eventMessage);
         }
         return false;
+    }
+
+    /**
+     * 扣减流量包
+     *
+     * @param eventMessage
+     * @param shortLinkCode
+     * @return
+     */
+    private boolean reduceTraffic(EventMessage eventMessage, String shortLinkCode) {
+        UseTrafficRequest request = UseTrafficRequest.builder()
+                .accountNo(eventMessage.getAccountNo()).bizId(shortLinkCode).build();
+        JsonData jsonData = trafficFeignService.useTraffic(request);
+
+        if (jsonData.getCode() != 0) {
+            log.error("扣减流量包失败:{}", jsonData);
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @Override
@@ -237,25 +261,25 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
         ShortLinkDelRequest request = JsonUtil.json2Obj(eventMessage.getContent(), ShortLinkDelRequest.class);
 
-        //C端解析
-        if(EventMessageType.SHORT_LINK_DEL_LINK.name().equalsIgnoreCase(messageType)){
+        // C端解析
+        if (EventMessageType.SHORT_LINK_DEL_LINK.name().equalsIgnoreCase(messageType)) {
 
             ShortLinkDO shortLinkDO = ShortLinkDO.builder().code(request.getCode()).accountNo(accountNo).build();
 
             int rows = shortLinkManager.del(shortLinkDO);
 
-            log.debug("删除C端短链:{}",rows);
+            log.debug("删除C端短链:{}", rows);
             return true;
 
-        }else if(EventMessageType.SHORT_LINK_DEL_MAPPING.name().equalsIgnoreCase(messageType)){
+        } else if (EventMessageType.SHORT_LINK_DEL_MAPPING.name().equalsIgnoreCase(messageType)) {
 
-            //B端处理
+            // B端处理
             GroupCodeMappingDO groupCodeMappingDO = GroupCodeMappingDO.builder()
                     .id(request.getMappingId()).accountNo(accountNo)
                     .groupId(request.getGroupId()).build();
 
             int rows = groupCodeMappingManager.del(groupCodeMappingDO);
-            log.debug("删除B端短链:{}",rows);
+            log.debug("删除B端短链:{}", rows);
             return true;
 
         }
