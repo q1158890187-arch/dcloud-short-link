@@ -3,7 +3,9 @@ package net.xdclass.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.component.ShortLinkComponent;
 import net.xdclass.config.RabbitMQConfig;
+import net.xdclass.constant.RedisKey;
 import net.xdclass.controller.request.*;
+import net.xdclass.enums.BizCodeEnum;
 import net.xdclass.enums.DomainTypeEnum;
 import net.xdclass.enums.EventMessageType;
 import net.xdclass.enums.ShortLinkStateEnum;
@@ -81,17 +83,32 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
         long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
 
+        //需要预先检查下是否有足够多的可以进行创建
+        String cacheKey = String.format(RedisKey.DAY_TOTAL_TRAFFIC, accountNo);
 
-        String newOriginalUrl = CommonUtil.addUrlPrefix(request.getOriginalUrl());
-        request.setOriginalUrl(newOriginalUrl);
+        // 检查key是否存在，然后递减，是否大于等于0，使用lua脚本
+        // 如果key不存在，则未使用过，lua返回值是0； 新增流量包的时候，不用重新计算次数，直接删除key,消费的时候回计算更新
 
-        EventMessage eventMessage = EventMessage.builder().accountNo(accountNo)
-                .content(JsonUtil.obj2Json(request))
-                .eventMessageType(EventMessageType.SHORT_LINK_ADD.name())
-                .build();
+        String script = "if redis.call('get',KEYS[1]) then return redis.call('decr',KEYS[1]) else return 0 end";
 
-        rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(), rabbitMQConfig.getShortLinkAddRoutingKey(), eventMessage);
-        return JsonData.buildSuccess();
+        Long leftTimes = redisTemplate.execute(new DefaultRedisScript<>(script,Long.class),Arrays.asList(cacheKey),"");
+
+        log.info("今日流量包剩余次数:{}",leftTimes);
+
+        if (leftTimes >= 0) {
+            String newOriginalUrl = CommonUtil.addUrlPrefix(request.getOriginalUrl());
+            request.setOriginalUrl(newOriginalUrl);
+            EventMessage eventMessage = EventMessage.builder().accountNo(accountNo)
+                    .content(JsonUtil.obj2Json(request))
+                    .eventMessageType(EventMessageType.SHORT_LINK_ADD.name())
+                    .build();
+            rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(), rabbitMQConfig.getShortLinkAddRoutingKey(), eventMessage);
+            return JsonData.buildSuccess();
+        } else {
+            //流量包不足
+            return JsonData.buildResult(BizCodeEnum.TRAFFIC_REDUCE_FAIL);
+        }
+
     }
 
     /**
