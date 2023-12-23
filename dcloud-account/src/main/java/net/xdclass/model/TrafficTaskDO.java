@@ -40,7 +40,7 @@ public class TrafficTaskDO implements Serializable {
     /**
      * 唯一标识
      */
-    private String messageId;
+    private String bizId;
 
     private Date gmtCreate;
 
