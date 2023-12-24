@@ -99,11 +99,12 @@ public class TrafficManagerImpl implements TrafficManager {
      * @param accountNo
      * @param trafficId
      * @param usedTimes
+     * @param useDateStr
      * @return
      */
     @Override
-    public int releaseUsedTimes(long accountNo, Long trafficId, Integer usedTimes) {
-        return trafficMapper.releaseUsedTimes(accountNo,trafficId,usedTimes);
+    public int releaseUsedTimes(Long accountNo, Long trafficId, Integer usedTimes,String useDateStr) {
+        return trafficMapper.releaseUsedTimes(accountNo,trafficId,usedTimes,useDateStr);
     }
 
     @Override

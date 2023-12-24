@@ -73,7 +73,7 @@ public class TrafficTest {
     @Test
     public void testReleaseDayUsedTimes(){
 
-        int rows = trafficManager.releaseUsedTimes(693100647796441088L,1486221880318595076L,1);
+        int rows = trafficManager.releaseUsedTimes(693100647796441088L,1486221880318595076L,1,null);
 
         log.info("rows={}",rows);
     }
