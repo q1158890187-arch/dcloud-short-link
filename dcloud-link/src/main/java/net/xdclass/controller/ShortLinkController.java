@@ -7,13 +7,12 @@ import net.xdclass.controller.request.ShortLinkPageRequest;
 import net.xdclass.controller.request.ShortLinkUpdateRequest;
 import net.xdclass.service.ShortLinkService;
 import net.xdclass.util.JsonData;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import net.xdclass.vo.ShortLinkVO;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -30,6 +29,23 @@ public class ShortLinkController {
 
     @Resource
     private ShortLinkService shortLinkService;
+
+
+    @Value("${rpc.token}")
+    private String rpcToken;
+
+    @GetMapping("check")
+    public JsonData check(@RequestParam("shortLinkCode") String shortLinkCode, HttpServletRequest request){
+
+        String token = request.getHeader("rpc-token");
+        if(rpcToken.equalsIgnoreCase(token)){
+            ShortLinkVO shortLinkVO = shortLinkService.parseShortLinkCode(shortLinkCode);
+            return shortLinkVO == null ? JsonData.buildError("短链不存在"):JsonData.buildSuccess();
+        }else {
+            return JsonData.buildError("非法访问");
+        }
+
+    }
 
     /**
      * 新增短链
