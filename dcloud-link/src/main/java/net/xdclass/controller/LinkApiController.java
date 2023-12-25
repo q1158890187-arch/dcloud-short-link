@@ -2,15 +2,16 @@ package net.xdclass.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.enums.ShortLinkStateEnum;
+import net.xdclass.service.LogService;
 import net.xdclass.service.ShortLinkService;
 import net.xdclass.util.CommonUtil;
 import net.xdclass.vo.ShortLinkVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,9 +25,11 @@ import javax.servlet.http.HttpServletResponse;
 public class LinkApiController {
 
 
-    @Autowired
+    @Resource
     private ShortLinkService shortLinkService;
 
+    @Resource
+    private LogService logService;
 
     /**
      * 解析 301还是302，这边是返回http code是302
@@ -47,7 +50,7 @@ public class LinkApiController {
     @GetMapping(path = "/{shortLinkCode}")
     public void dispatch(@PathVariable(name = "shortLinkCode") String shortLinkCode,
                          HttpServletRequest request, HttpServletResponse response) {
-
+        logService.recordShortLinkLog(shortLinkCode);
 
         try {
             log.info("短链码:{}", shortLinkCode);
