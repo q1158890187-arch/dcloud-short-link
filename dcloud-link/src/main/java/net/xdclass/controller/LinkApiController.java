@@ -50,23 +50,21 @@ public class LinkApiController {
     @GetMapping(path = "/{shortLinkCode}")
     public void dispatch(@PathVariable(name = "shortLinkCode") String shortLinkCode,
                          HttpServletRequest request, HttpServletResponse response) {
-        logService.recordShortLinkLog(shortLinkCode);
-
         try {
             log.info("短链码:{}", shortLinkCode);
-            //判断短链码是否合规
+            // 判断短链码是否合规
             if (isLetterDigit(shortLinkCode)) {
-                //查找短链
+                // 查找短链
                 ShortLinkVO shortLinkVO = shortLinkService.parseShortLinkCode(shortLinkCode);
-                //判断是否过期和可用
+                if (shortLinkVO != null){
+                    logService.recordShortLinkLog(request,shortLinkCode,shortLinkVO.getAccountNo());
+                }
+                // 判断是否过期和可用
                 if (isVisitable(shortLinkVO)) {
-
                     String originalUrl = CommonUtil.removeUrlPrefix(shortLinkVO.getOriginalUrl());
                     response.setHeader("Location", originalUrl);
-                    //302跳转
+                    // 302跳转
                     response.setStatus(HttpStatus.FOUND.value());
-
-
                 } else {
 
                     response.setStatus(HttpStatus.NOT_FOUND.value());
