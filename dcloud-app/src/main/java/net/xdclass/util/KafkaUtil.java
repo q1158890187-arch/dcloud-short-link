@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * @description:
+ * @description: kafka工具类
  * @author: zhengqinghua
  * @date: 2023/12/27 01:03
  */
@@ -39,6 +39,7 @@ public class KafkaUtil {
 
     /**
      * 获取flink的kafka消费者
+     *
      * @param topic
      * @param groupId
      * @return
@@ -53,6 +54,7 @@ public class KafkaUtil {
 
     /**
      * 获取flink的kafka生产者
+     *
      * @param topic
      * @return
      */
