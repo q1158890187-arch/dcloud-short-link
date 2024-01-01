@@ -3,6 +3,7 @@ package net.xdclass.dwd;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import net.xdclass.func.VistorMapFunction;
 import net.xdclass.util.DeviceUtil;
 import net.xdclass.util.KafkaUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +15,7 @@ import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.util.Collector;
 
 import java.net.MalformedURLException;
@@ -30,9 +32,14 @@ import java.util.TreeMap;
 public class DwdShortLinkLogApp {
 
     /**
-     * 定义topic
+     * 定义source topic
      */
     public static final String SOURCE_TOPIC = "ods_link_visit_topic";
+
+    /**
+     * 定义sink topic
+     */
+    public static final String SINK_TOPIC = "dwd_link_visit_topic";
 
     /**
      * 定义消费者组
@@ -71,15 +78,12 @@ public class DwdShortLinkLogApp {
                 return value.getString("udid");
             }
         });
-
-
         //识别 richMap open函数，做状态存储的初始化
-
-
-
-
+        SingleOutputStreamOperator<String> jsonDSWithVisitorState = keyedStream.map(new VistorMapFunction());
+        jsonDSWithVisitorState.print("ods新老访客");
         //存储到dwd
-
+        FlinkKafkaProducer<String> kafkaProducer = KafkaUtil.getKafkaProducer(SINK_TOPIC);
+        jsonDSWithVisitorState.addSink(kafkaProducer);
         env.execute();
     }
 
