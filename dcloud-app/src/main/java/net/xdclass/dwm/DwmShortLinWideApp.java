@@ -1,14 +1,18 @@
 package net.xdclass.dwm;
 
+import net.xdclass.func.AsyncLocationRequestFunction;
 import net.xdclass.func.DeviceMapFunction;
 import net.xdclass.func.LocationMapFunction;
 import net.xdclass.model.ShortLinkWideDO;
 import net.xdclass.util.KafkaUtil;
+import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description:
@@ -47,7 +51,8 @@ public class DwmShortLinWideApp {
         deviceWideDS.print("设备信息宽表补齐");
 
         //3、补齐地理位置信息
-        SingleOutputStreamOperator<String> shortLinkWideDS  = deviceWideDS.map(new LocationMapFunction());
+        // SingleOutputStreamOperator<String> shortLinkWideDS  = deviceWideDS.map(new LocationMapFunction());
+        SingleOutputStreamOperator<String> shortLinkWideDS = AsyncDataStream.unorderedWait(deviceWideDS, new AsyncLocationRequestFunction(), 1000, TimeUnit.MILLISECONDS, 200);
         shortLinkWideDS.print("地理位置信息宽表补齐");
 
         FlinkKafkaProducer<String> kafkaProducer = KafkaUtil.getKafkaProducer(SINK_TOPIC);
