@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import net.xdclass.model.ShortLinkVisitStatsDO;
 import net.xdclass.util.KafkaUtil;
+import net.xdclass.util.MyClickHouseSink;
 import net.xdclass.util.TimeUtil;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -120,7 +121,6 @@ public class DwsShortLinkVisitStatsApp {
             @Override
             public void process(Tuple9<String, String, Integer, String, String, String, String, String, String> tuple,
                                 Context context, Iterable<ShortLinkVisitStatsDO> elements, Collector<Object> out) throws Exception {
-
                 for (ShortLinkVisitStatsDO visitStatsDO : elements) {
                     //窗口开始和结束时间
                     String startTime = TimeUtil.formatWithTime(context.window().getStart());
@@ -133,7 +133,11 @@ public class DwsShortLinkVisitStatsApp {
             }
         });
         reduceDS.print(">>>>>>");
+
         //8、输出Clickhouse
+        String sql = "insert into visit_stats values(?,?,?,? ,?,?,?,? ,?,?,?,? ,?,?,?)";
+        reduceDS.addSink(MyClickHouseSink.getJdbcSink(sql));
+
         env.execute();
 
     }
@@ -162,6 +166,7 @@ public class DwsShortLinkVisitStatsApp {
                 .os(jsonObj.getString("os"))
                 .osVersion(jsonObj.getString("osVersion"))
                 .deviceType(jsonObj.getString("deviceType"))
+                .deviceManufacturer(jsonObj.getString("deviceManufacturer"))
 
                 .build();
         return visitStatsDO;
