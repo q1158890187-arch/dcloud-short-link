@@ -1,17 +1,21 @@
 package net.xdclass.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import net.xdclass.controller.request.RegionQueryRequest;
 import net.xdclass.controller.request.VisitRecordPageRequest;
 import net.xdclass.interceptor.LoginInterceptor;
 import net.xdclass.mapper.VisitStatsMapper;
 import net.xdclass.model.VisitStatsDO;
 import net.xdclass.service.VisitStatsService;
+import net.xdclass.vo.VisitStatsVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -49,5 +53,27 @@ public class VisitStatsServiceImpl implements VisitStatsService {
         data.put("total_page", totalPage);
         data.put("data", list);
         return data;
+    }
+
+    @Override
+    public List<VisitStatsVO> queryRegionWithDay(RegionQueryRequest request) {
+        Long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
+        List<VisitStatsDO> list = visitStatsMapper.queryRegionVisitStatsWithDay(request.getCode(), request.getStartTime(), request.getEndTime(), accountNo);
+
+        List<VisitStatsVO> visitStatsVOS = list.stream().map(obj -> beanProcess(obj)).collect(Collectors.toList());
+
+        return visitStatsVOS;
+    }
+
+
+    /**
+     * map-struct
+     * @param visitStatsDO
+     * @return
+     */
+    private VisitStatsVO beanProcess(VisitStatsDO visitStatsDO){
+        VisitStatsVO visitStatsVO = new VisitStatsVO();
+        BeanUtils.copyProperties(visitStatsDO,visitStatsVO);
+        return visitStatsVO;
     }
 }

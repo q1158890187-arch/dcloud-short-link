@@ -44,4 +44,12 @@
         from  visit_stats where  account_no = #{accountNo} and code = #{code}
         order by ts desc limit #{from},#{size}
     </select>
+
+    <!--时间范围内地区访问分布-城市级别，天级别-->
+    <select id="queryRegionVisitStatsWithDay" resultMap="BaseResultMap">
+        select province,city,sum(pv) pv_count, sum(uv) uv_count,count( DISTINCT ip) ip_count from visit_stats
+        where  account_no=#{accountNo} and code=#{code} and toYYYYMMDD(start_time) BETWEEN #{startTime} and #{endTime}
+        group by province,city order by pv_count desc
+    </select>
+
 </mapper>

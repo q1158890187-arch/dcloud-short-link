@@ -1,14 +1,17 @@
 package net.xdclass.controller;
 
+import net.xdclass.controller.request.RegionQueryRequest;
 import net.xdclass.controller.request.VisitRecordPageRequest;
 import net.xdclass.enums.BizCodeEnum;
 import net.xdclass.service.VisitStatsService;
 import net.xdclass.util.JsonData;
+import net.xdclass.vo.VisitStatsVO;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,5 +35,13 @@ public class VisitStatsController {
         }
         Map<String,Object> pageResult = visitStatsService.pageVisitRecord(request);
         return JsonData.buildSuccess(pageResult);
+    }
+
+    @RequestMapping("region_day")
+    public JsonData queryRegionWithDay(@RequestBody RegionQueryRequest request){
+
+        List<VisitStatsVO> list = visitStatsService.queryRegionWithDay(request);
+
+        return JsonData.buildSuccess(list);
     }
 }

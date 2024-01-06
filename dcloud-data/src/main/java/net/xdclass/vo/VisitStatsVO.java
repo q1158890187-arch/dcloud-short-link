@@ -1,4 +1,4 @@
-package net.xdclass.model;
+package net.xdclass.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 /**
  * @description:
  * @author: zhengqinghua
- * @date: 2024/1/5 00:37
+ * @date: 2024/1/6 14:59
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VisitStatsDO {
+public class VisitStatsVO {
 
     /**
      * 窗口开始时间  Clickhouse里面会用到
@@ -117,12 +117,11 @@ public class VisitStatsDO {
 
     private Long pv = 0L;
 
-
     private Long ipCount = 0L;
 
-    private Long pvCount=0L;
+    private Long pvCount = 0L;
 
-    private Long uvCount=0L;
+    private Long uvCount = 0L;
 
     private Long newUVCount = 0L;
 
@@ -131,5 +130,4 @@ public class VisitStatsDO {
      */
 
     private String dateTimeStr;
-
 }

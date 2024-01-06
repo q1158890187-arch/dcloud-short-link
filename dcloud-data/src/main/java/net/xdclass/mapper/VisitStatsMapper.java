@@ -31,4 +31,15 @@ public interface VisitStatsMapper extends BaseMapper<VisitStatsDO> {
      */
     List<VisitStatsDO> pageVisitRecord(@Param("code") String code, @Param("accountNo") Long accountNo,
                                        @Param("from") int from, @Param("size") int size);
+
+    /**
+     * 根据时间范围查询地区访问分布
+     * @param code
+     * @param startTime
+     * @param endTime
+     * @param accountNo
+     * @return
+     */
+    List<VisitStatsDO> queryRegionVisitStatsWithDay(@Param("code") String code, @Param("startTime") String startTime,
+                                                    @Param("endTime") String endTime, @Param("accountNo") Long accountNo);
 }
