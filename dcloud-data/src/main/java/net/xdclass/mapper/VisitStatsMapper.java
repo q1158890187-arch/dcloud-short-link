@@ -32,6 +32,7 @@ public interface VisitStatsMapper extends BaseMapper<VisitStatsDO> {
     List<VisitStatsDO> pageVisitRecord(@Param("code") String code, @Param("accountNo") Long accountNo,
                                        @Param("from") int from, @Param("size") int size);
 
+
     /**
      * 根据时间范围查询地区访问分布
      * @param code
@@ -47,7 +48,7 @@ public interface VisitStatsMapper extends BaseMapper<VisitStatsDO> {
 
 
     /**
-     * 查询时间范围内的访问趋势图
+     * 查询时间范围内的访问趋势图 天级别
      * @param code
      * @param startTime
      * @param endTime
@@ -56,6 +57,26 @@ public interface VisitStatsMapper extends BaseMapper<VisitStatsDO> {
      */
     List<VisitStatsDO> queryVisitTrendWithMultiDay(@Param("code") String code,@Param("accountNo") Long accountNo, @Param("startTime") String startTime,
                                                    @Param("endTime") String endTime);
+
+    /**
+     * 查询时间范围内的访问趋势图 小时级别
+     * @param code
+     * @param accountNo
+     * @param startTime
+     * @return
+     */
+    List<VisitStatsDO> queryVisitTrendWithHour(@Param("code") String code,@Param("accountNo") Long accountNo, @Param("startTime") String startTime);
+
+    /**
+     * 查询时间范围内的访问趋势图 分钟级别
+     * @param code
+     * @param accountNo
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    List<VisitStatsDO> queryVisitTrendWithMinute(@Param("code") String code,@Param("accountNo") Long accountNo, @Param("startTime") String startTime,
+                                                 @Param("endTime") String endTime);
 
     /**
      * 查询高频访问来源
@@ -68,4 +89,18 @@ public interface VisitStatsMapper extends BaseMapper<VisitStatsDO> {
      */
     List<VisitStatsDO> queryFrequentSource(@Param("code") String code,@Param("accountNo") Long accountNo, @Param("startTime") String startTime,
                                            @Param("endTime") String endTime,@Param("size") int size);
+
+
+    /**
+     * 查询设备类型
+     * @param code
+     * @param accountNo
+     * @param startTime
+     * @param endTime
+     * @param field
+     * @return
+     */
+    List<VisitStatsDO> queryDeviceInfo(@Param("code") String code,@Param("accountNo") Long accountNo,
+                                       @Param("startTime") String startTime,
+                                       @Param("endTime") String endTime,@Param("field") String field);
 }

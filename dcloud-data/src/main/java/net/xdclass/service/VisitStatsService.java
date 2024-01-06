@@ -1,9 +1,6 @@
 package net.xdclass.service;
 
-import net.xdclass.controller.request.FrequentSourceRequset;
-import net.xdclass.controller.request.RegionQueryRequest;
-import net.xdclass.controller.request.VisitRecordPageRequest;
-import net.xdclass.controller.request.VisitTrendQueryRequest;
+import net.xdclass.controller.request.*;
 import net.xdclass.vo.VisitStatsVO;
 
 import java.util.List;
@@ -23,4 +20,6 @@ public interface VisitStatsService {
     List<VisitStatsVO> queryVisitTrend(VisitTrendQueryRequest request);
 
     List<VisitStatsVO> queryFrequentSource(FrequentSourceRequset request);
+
+    Map<String, List<VisitStatsVO>> queryDeviceInfo(QueryDeviceRequest request);
 }

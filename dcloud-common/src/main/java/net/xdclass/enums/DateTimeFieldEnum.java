@@ -7,7 +7,7 @@ package net.xdclass.enums;
  */
 public enum DateTimeFieldEnum {
 
-    MIUNTE,
+    MINUTE,
 
     HOUR,
 

@@ -1,9 +1,6 @@
 package net.xdclass.controller;
 
-import net.xdclass.controller.request.FrequentSourceRequset;
-import net.xdclass.controller.request.RegionQueryRequest;
-import net.xdclass.controller.request.VisitRecordPageRequest;
-import net.xdclass.controller.request.VisitTrendQueryRequest;
+import net.xdclass.controller.request.*;
 import net.xdclass.enums.BizCodeEnum;
 import net.xdclass.service.VisitStatsService;
 import net.xdclass.util.JsonData;
@@ -71,5 +68,17 @@ public class VisitStatsController {
     public JsonData queryFrequentSource(@RequestBody FrequentSourceRequset request){
         List<VisitStatsVO> list = visitStatsService.queryFrequentSource(request);
         return JsonData.buildSuccess(list);
+    }
+
+    /**
+     * 查询设备访问分布情况
+     * @param request
+     * @return
+     */
+    @RequestMapping("device_info")
+    public JsonData queryDeviceInfo(@RequestBody QueryDeviceRequest request){
+
+        Map<String,List<VisitStatsVO>> map = visitStatsService.queryDeviceInfo(request);
+        return JsonData.buildSuccess(map);
     }
 }
