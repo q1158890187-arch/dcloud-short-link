@@ -3,6 +3,8 @@ package net.xdclass.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.xdclass.controller.request.RegionQueryRequest;
 import net.xdclass.controller.request.VisitRecordPageRequest;
+import net.xdclass.controller.request.VisitTrendQueryRequest;
+import net.xdclass.enums.DateTimeFieldEnum;
 import net.xdclass.interceptor.LoginInterceptor;
 import net.xdclass.mapper.VisitStatsMapper;
 import net.xdclass.model.VisitStatsDO;
@@ -58,22 +60,40 @@ public class VisitStatsServiceImpl implements VisitStatsService {
     @Override
     public List<VisitStatsVO> queryRegionWithDay(RegionQueryRequest request) {
         Long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
-        List<VisitStatsDO> list = visitStatsMapper.queryRegionVisitStatsWithDay(request.getCode(), request.getStartTime(), request.getEndTime(), accountNo);
-
+        List<VisitStatsDO> list = visitStatsMapper.queryRegionVisitStatsWithDay(request.getCode(), accountNo, request.getStartTime(), request.getEndTime());
         List<VisitStatsVO> visitStatsVOS = list.stream().map(obj -> beanProcess(obj)).collect(Collectors.toList());
-
         return visitStatsVOS;
     }
 
+    @Override
+    public List<VisitStatsVO> queryVisitTrend(VisitTrendQueryRequest request) {
+        Long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
+        String code = request.getCode();
+        String type = request.getType();
+        String startTime = request.getStartTime();
+        String endTime = request.getEndTime();
+        List<VisitStatsDO> list = null;
+
+        if (DateTimeFieldEnum.DAY.name().equalsIgnoreCase(type)) {
+            list = visitStatsMapper.queryVisitTrendWithMultiDay(code, accountNo, startTime, endTime);
+        } else if (DateTimeFieldEnum.HOUR.name().equalsIgnoreCase(type)) {
+
+        } else if (DateTimeFieldEnum.MIUNTE.name().equalsIgnoreCase(type)) {
+
+        }
+        List<VisitStatsVO> visitStatsVOS = list.stream().map(obj -> beanProcess(obj)).collect(Collectors.toList());
+        return visitStatsVOS;
+    }
 
     /**
      * map-struct
+     *
      * @param visitStatsDO
      * @return
      */
-    private VisitStatsVO beanProcess(VisitStatsDO visitStatsDO){
+    private VisitStatsVO beanProcess(VisitStatsDO visitStatsDO) {
         VisitStatsVO visitStatsVO = new VisitStatsVO();
-        BeanUtils.copyProperties(visitStatsDO,visitStatsVO);
+        BeanUtils.copyProperties(visitStatsDO, visitStatsVO);
         return visitStatsVO;
     }
 }

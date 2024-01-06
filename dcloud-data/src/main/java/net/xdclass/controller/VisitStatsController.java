@@ -2,6 +2,7 @@ package net.xdclass.controller;
 
 import net.xdclass.controller.request.RegionQueryRequest;
 import net.xdclass.controller.request.VisitRecordPageRequest;
+import net.xdclass.controller.request.VisitTrendQueryRequest;
 import net.xdclass.enums.BizCodeEnum;
 import net.xdclass.service.VisitStatsService;
 import net.xdclass.util.JsonData;
@@ -37,11 +38,27 @@ public class VisitStatsController {
         return JsonData.buildSuccess(pageResult);
     }
 
+
+    /**
+     * 查询时间范围内的，地区访问分布
+     * @param request
+     * @return
+     */
     @RequestMapping("region_day")
     public JsonData queryRegionWithDay(@RequestBody RegionQueryRequest request){
-
         List<VisitStatsVO> list = visitStatsService.queryRegionWithDay(request);
-
         return JsonData.buildSuccess(list);
+    }
+
+    /**
+     * 访问趋势图
+     * @param request
+     * @return
+     */
+    @RequestMapping("trend")
+    public JsonData queryVisitTrend(@RequestBody VisitTrendQueryRequest request){
+        List<VisitStatsVO> list = visitStatsService.queryVisitTrend(request);
+        return JsonData.buildSuccess(list);
+
     }
 }

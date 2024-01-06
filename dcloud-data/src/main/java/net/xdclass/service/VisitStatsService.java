@@ -2,6 +2,7 @@ package net.xdclass.service;
 
 import net.xdclass.controller.request.RegionQueryRequest;
 import net.xdclass.controller.request.VisitRecordPageRequest;
+import net.xdclass.controller.request.VisitTrendQueryRequest;
 import net.xdclass.vo.VisitStatsVO;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface VisitStatsService {
     Map<String, Object> pageVisitRecord(VisitRecordPageRequest request);
 
     List<VisitStatsVO> queryRegionWithDay(RegionQueryRequest request);
+
+    List<VisitStatsVO> queryVisitTrend(VisitTrendQueryRequest request);
 }
