@@ -1,5 +1,6 @@
 package net.xdclass.service;
 
+import net.xdclass.controller.request.FrequentSourceRequset;
 import net.xdclass.controller.request.RegionQueryRequest;
 import net.xdclass.controller.request.VisitRecordPageRequest;
 import net.xdclass.controller.request.VisitTrendQueryRequest;
@@ -20,4 +21,6 @@ public interface VisitStatsService {
     List<VisitStatsVO> queryRegionWithDay(RegionQueryRequest request);
 
     List<VisitStatsVO> queryVisitTrend(VisitTrendQueryRequest request);
+
+    List<VisitStatsVO> queryFrequentSource(FrequentSourceRequset request);
 }

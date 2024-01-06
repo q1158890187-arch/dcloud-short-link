@@ -1,5 +1,6 @@
 package net.xdclass.controller;
 
+import net.xdclass.controller.request.FrequentSourceRequset;
 import net.xdclass.controller.request.RegionQueryRequest;
 import net.xdclass.controller.request.VisitRecordPageRequest;
 import net.xdclass.controller.request.VisitTrendQueryRequest;
@@ -59,6 +60,16 @@ public class VisitStatsController {
     public JsonData queryVisitTrend(@RequestBody VisitTrendQueryRequest request){
         List<VisitStatsVO> list = visitStatsService.queryVisitTrend(request);
         return JsonData.buildSuccess(list);
+    }
 
+    /**
+     * 高频rerere统计
+     * @param requset
+     * @return
+     */
+    @RequestMapping("frequent_source")
+    public JsonData queryFrequentSource(@RequestBody FrequentSourceRequset request){
+        List<VisitStatsVO> list = visitStatsService.queryFrequentSource(request);
+        return JsonData.buildSuccess(list);
     }
 }

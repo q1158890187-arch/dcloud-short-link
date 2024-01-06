@@ -60,4 +60,10 @@
         and #{endTime} group by date_time_str ORDER BY date_time_str desc
     </select>
 
+    <!--高频referer查询 访问来源-->
+    <select id="queryFrequentSource" resultMap="BaseResultMap">
+        select referer,sum(pv) pv_count from visit_stats where
+        account_no=#{accountNo} and code=#{code} and toYYYYMMDD(start_time) BETWEEN #{startTime} and #{endTime}
+        group by referer  order by pv_count desc limit #{size}
+    </select>
 </mapper>

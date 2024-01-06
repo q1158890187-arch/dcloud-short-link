@@ -1,6 +1,7 @@
 package net.xdclass.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import net.xdclass.controller.request.FrequentSourceRequset;
 import net.xdclass.controller.request.RegionQueryRequest;
 import net.xdclass.controller.request.VisitRecordPageRequest;
 import net.xdclass.controller.request.VisitTrendQueryRequest;
@@ -81,6 +82,17 @@ public class VisitStatsServiceImpl implements VisitStatsService {
         } else if (DateTimeFieldEnum.MIUNTE.name().equalsIgnoreCase(type)) {
 
         }
+        List<VisitStatsVO> visitStatsVOS = list.stream().map(obj -> beanProcess(obj)).collect(Collectors.toList());
+        return visitStatsVOS;
+    }
+
+    @Override
+    public List<VisitStatsVO> queryFrequentSource(FrequentSourceRequset request) {
+        Long accountNo = LoginInterceptor.threadLocal.get().getAccountNo();
+        String code = request.getCode();
+        String startTime = request.getStartTime();
+        String endTime = request.getEndTime();
+        List<VisitStatsDO> list = visitStatsMapper.queryFrequentSource(code, accountNo, startTime, endTime, 10);
         List<VisitStatsVO> visitStatsVOS = list.stream().map(obj -> beanProcess(obj)).collect(Collectors.toList());
         return visitStatsVOS;
     }
